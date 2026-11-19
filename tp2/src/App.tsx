@@ -1,6 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import PantallaInicial from "./paginas/pantallaInicial";
 import Home from "./paginas/home";
+import DetalleDePublicacion from "./paginas/detalleDePublicacion";
+
 
 function App() {
   return (
@@ -10,6 +12,7 @@ function App() {
 
       {/* Página principal */}
       <Route path="/home" element={<Home />} />
+      <Route path="/detalle/:id" element={<DetalleDePublicacion />} />
     </Routes>
   );
 }
