@@ -5,15 +5,19 @@ function RegistroDeUsuario() {
   const [nickName, setNickName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   //* Indica si el registro está procesándose
   const [cargando, setCargando] = useState(false);
 
   //* Controla si debemos mostrar el mensaje de registro exitoso
   const [registroExitoso, setRegistroExitoso] = useState(false);
-  // Dirección del backend
+
+  //* Dirección del backend
   const API_URL = "http://localhost:3001";
+
   //* Permite navegar a otra página desde una función
   const navigate = useNavigate();
+
   async function registrarUsuario() {
     //* Activamos el indicador de carga
     setCargando(true);
@@ -21,9 +25,16 @@ function RegistroDeUsuario() {
     //* Ocultamos cualquier mensaje de éxito anterior
     setRegistroExitoso(false);
 
+    //* Comprobamos que la contraseña sea la indicada por la consigna
+    if (password !== "123456") {
+      console.log("La contraseña debe ser 123456");
+      return;
+    }
+
     try {
       //* Esperamos un momento para que el indicador de carga sea visible
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       //* Enviamos los datos al backend
       const respuesta = await fetch(`${API_URL}/users`, {
         method: "POST",
@@ -45,14 +56,9 @@ function RegistroDeUsuario() {
         return;
       }
 
-      //* Guardamos los datos del último registro
-      localStorage.setItem(
-        "datosRegistro",
-        JSON.stringify({ nickName, email }),
-      );
-
       //* Mostramos el mensaje de registro exitoso
       setRegistroExitoso(true);
+
       //* Esperamos 1,5 segundos antes de ir a Home
       setTimeout(() => {
         navigate("/home");

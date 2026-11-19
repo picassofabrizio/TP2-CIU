@@ -13,22 +13,8 @@ function InicioDeSesion() {
   //* Permite navegar a otra página
   const navigate = useNavigate();
 
-  //* Recuperamos el nickname guardado durante el registro
-  const [nickName, setNickName] = useState(() => {
-    //* Buscamos los datos del último registro en localStorage
-    const datosGuardados = localStorage.getItem("datosRegistro");
-
-    //* Si encontramos datos guardados, los convertimos de texto a objeto
-    if (datosGuardados) {
-      const datos = JSON.parse(datosGuardados);
-
-      //* Devolvemos el nickname para completar automáticamente el input
-      return datos.nickName;
-    }
-
-    //* Si no hay datos guardados, el input comienza vacío
-    return "";
-  });
+  //* Guarda el nickname ingresado por el usuario
+  const [nickName, setNickName] = useState("");
 
   const [password, setPassword] = useState("");
 
