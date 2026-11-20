@@ -5,7 +5,7 @@ import type {Comentario} from "../types/Comentario";
 import type { Usuario } from "../types/Usuario";
 import { useState } from "react";
 
-function detalleDePublicacion() {
+function DetalleDePublicacion() {
   const { id } = useParams<{ id: string }>();
 
   const [publicacion, setPublicacion] = useState<Post | null>(null);
@@ -94,4 +94,4 @@ function detalleDePublicacion() {
   );
 }
 
-export default detalleDePublicacion;
+export default DetalleDePublicacion;

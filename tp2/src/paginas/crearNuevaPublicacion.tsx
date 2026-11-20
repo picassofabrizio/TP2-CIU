@@ -63,11 +63,11 @@ function crearNuevaPublicacion() {
         </div>
         <div>
           <label htmlFor="tags">Tags (separados por comas):</label>
-          <input type="text" id="tags" name="tags" />
+          <input type="text" id="tags" name="tags" placeholder="Ingresá tus tags separados por comas" />
         </div>
         <div>
           <label htmlFor="imagenes">Imágenes (URLs separadas por comas):</label>
-          <input type="text" id="imagenes" name="imagenes" />
+          <input type="text" id="imagenes" name="imagenes" placeholder="Ingresá las URLs de las imágenes separadas por comas" />
         </div>
         <button type="submit">Crear Publicación</button>
       </form>
