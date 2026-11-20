@@ -1,7 +1,8 @@
-
 import { useState } from "react";
 import type { Usuario } from "../types/Usuario";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { UsuarioContext } from "../contextos/UsuarioContext.tsx";
 
 function InicioDeSesion() {
   //* Controla si el inicio de sesión está procesándose
@@ -20,23 +21,30 @@ function InicioDeSesion() {
 
   const API_URL = "http://localhost:3001";
 
+  //* Accedemos al contexto del usuario
+  const contexto = useContext(UsuarioContext);
+
+  const [mensajeError, setMensajeError] = useState("");
+
   async function obtenerUsuarios() {
-    //* Activamos el indicador de carga
+    //* Activamos el indicador dae carga
     setCargando(true);
 
     //* Reiniciamos el mensaje de verificación
     setDatosVerificados(false);
 
-    //* Esperamos un momento para visualizar la carga
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setMensajeError("");
 
     try {
+      //* Esperamos un momento para visualizar la carga
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       //* Solicitamos los usuarios al backend
       const respuesta = await fetch(`${API_URL}/users`);
 
       //* Comprobamos si la petición fue exitosa
       if (!respuesta.ok) {
-        console.log("Error al obtener los usuarios");
+        setMensajeError("Error al obtener los usuarios");
         return;
       }
 
@@ -50,18 +58,21 @@ function InicioDeSesion() {
 
       //* Comprobamos si el usuario existe
       if (!usuarioEncontrado) {
-        console.log("El usuario no existe");
+        setMensajeError("El usuario no existe");
         return;
       }
 
       //* Comprobamos la contraseña ingresada
       if (password !== "123456") {
-        console.log("Contraseña incorrecta");
+        setMensajeError("Contraseña incorrecta");
         return;
       }
 
       //* Indicamos que los datos fueron verificados correctamente
       setDatosVerificados(true);
+
+      //* Guardamos el usuario en el contexto global
+      contexto?.setUsuario(usuarioEncontrado);
 
       //* Esperamos para que el usuario pueda leer el mensaje
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -72,7 +83,8 @@ function InicioDeSesion() {
       //* Redirigimos a la página principal
       navigate("/home");
     } catch (error) {
-      //* Capturamos errores de conexión con el backend
+      // Capturamos errores de conexión con el backend
+      setMensajeError("Error de conexión con el backend");
       console.log("Error de conexión con el backend:", error);
     } finally {
       //* Detenemos el indicador de carga
@@ -148,6 +160,10 @@ function InicioDeSesion() {
         <div className="alert alert-success mt-3 mb-0">
           ¡Datos verificados correctamente!
         </div>
+      )}
+
+      {mensajeError && (
+        <div className="alert alert-danger mt-3">{mensajeError}</div>
       )}
     </div>
   );
