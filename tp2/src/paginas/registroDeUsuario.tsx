@@ -111,7 +111,9 @@ function RegistroDeUsuario() {
       console.log("¡Usuario registrado correctamente!");
     } catch (error) {
       //* Capturamos errores de conexión con el backend
-      setMensajeError("Error de conexión con el backend");
+      setMensajeError(
+        "No se pudo conectar con el servidor. Intente nuevamente."
+      );
       console.log("Error de conexión con el backend:", error);
     } finally {
       //* Detenemos el indicador de carga
