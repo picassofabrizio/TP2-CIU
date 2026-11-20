@@ -1,4 +1,4 @@
-function perfilDeUsuario() {
+function PerfilDeUsuario() {
   return (
     <div>
       <h1>Perfil de Usuario</h1>
@@ -7,4 +7,4 @@ function perfilDeUsuario() {
   );
 }
 
-export default perfilDeUsuario;
+export default PerfilDeUsuario;
