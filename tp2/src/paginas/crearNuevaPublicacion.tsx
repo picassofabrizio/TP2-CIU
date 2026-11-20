@@ -1,25 +1,52 @@
+import { useContext, useState } from "react";
+import { UsuarioContext } from "../contextos/UsuarioContext";
 import type {Post} from "../types/Post";
 
 function crearNuevaPublicacion() {
 
-  const postPublicacion = "http://localhost:3001/POST/posts/";
+  const authContext = useContext(UsuarioContext);
+  const [mensaje, setMensaje] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [enviado, setEnviado] = useState<boolean>(false);
 
-  const postPublicacionImagenes = "http://localhost:3001/POST/postimagenes/";
+  const postPublicacion = "http://localhost:3001/posts/";
+
+  const postPublicacionImagenes = "http://localhost:3001/postimagenes/";
+
+  if (!authContext || !authContext.usuario) {
+    return <p>Debe iniciar sesión para crear una publicación.</p>;
+  }
+
+  const {usuario} = authContext;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const descripcion = formData.get("descripcion") as string;
-    const tags = (formData.get("tags") as string).split(",").map(tag => tag.trim());
-    const imagenes = (formData.get("imagenes") as string).split(",").map(url => url.trim());
+    setMensaje(null);
+    setError(null);
+    setEnviado(true);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    
+    const descripcion = ((formData.get("descripcion") as string) || "").trim();
+
+    const tags = ((formData.get("tags") as string) || "").split(",").map(tag => tag.trim()).filter(Boolean);
+    const imagenes = ((formData.get("imagenes") as string) || "").split(",").map(url => url.trim()).filter(Boolean);
+
+    if (!descripcion) {
+      setError("La descripción es obligatoria.");
+      setEnviado(false);
+      return;
+    }
+
 
     const postData: Post = {
       id: 0, // El ID se asignará automáticamente en el backend
       description: descripcion,
-      UserId: 1, // Reemplaza con el ID del usuario actual
+      UserId: Number(usuario.id), // Reemplaza con el ID del usuario actual
       createdAt: new Date().toISOString(),
       Tags: tags.map(tag => ({ id: 0, name: tag })), // Reemplaza con la estructura correcta de Tag
-      Imagenes: imagenes.map(url => ({ id: 0, url, PostId: 0 })) // Reemplaza con la estructura correcta de PostImagen
+      Imagenes: imagenes.map((url) => ({ id: 0, url, PostId: 0 })) // Reemplaza con la estructura correcta de PostImagen
     };
 
     try {
@@ -39,23 +66,33 @@ function crearNuevaPublicacion() {
       // Enviar las imágenes al backend
       const imagenData = (postData.Imagenes ?? []).map((img) => ({ ...img, PostId: createdPost.id }));
       for (const img of imagenData) {
-        await fetch(postPublicacionImagenes, {
+        const imgRes = await fetch(postPublicacionImagenes, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(img)
+          body: JSON.stringify(img),
         });
+        if(!imgRes.ok) {
+          throw new Error("Error al subir la imagen: " + img.url);
+        }
       }
-
+      form.reset();
+      setMensaje("Publicación creada exitosamente.");
     } catch (error) {
       console.error("Error al crear la publicación:", error);
+      setError(error instanceof Error ? error.message : "Error al crear la publicación");
+    }
+    finally {
+      setEnviado(false);
     }
   };
 
   return (
     <div>
       <h1>Crear Nueva Publicación</h1>
+      {mensaje && <p style={{ color: "green" }}>{mensaje}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="descripcion">Descripción:</label>
@@ -69,7 +106,9 @@ function crearNuevaPublicacion() {
           <label htmlFor="imagenes">Imágenes (URLs separadas por comas):</label>
           <input type="text" id="imagenes" name="imagenes" placeholder="Ingresá las URLs de las imágenes separadas por comas" />
         </div>
-        <button type="submit">Crear Publicación</button>
+        <button type="submit" disabled={enviado}>
+          {enviado ? "Creando..." : "Crear Publicación"}
+        </button>
       </form>
     </div>
   );
