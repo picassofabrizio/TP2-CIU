@@ -1,11 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import type { Usuario } from "../types/Usuario";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, Navigate } from "react-router-dom";
+import { UsuarioContext } from "../contextos/UsuarioContext";
 import type { Post } from "../types/Post"
 
 function PerfilDeUsuario() {
   //* Leemos el :id de la URL (/perfil/:id)
   const { id } = useParams<{ id: string }>();
+  //* Usuario logueado
+  const contexto = useContext(UsuarioContext);
+  const usuarioLogueado = contexto?.usuario;
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [publicaciones, setPublicaciones] = useState<Post[]>([]);
   const [cargando, setCargando] = useState<boolean>(true);
@@ -81,6 +85,11 @@ function PerfilDeUsuario() {
       </article>
     ));
   };
+  //* Solo se puede ver el perfil propio: si el id de la URL no coincide
+  //* con el del usuario logueado, redirigimos a su propio perfil
+  if (usuarioLogueado && String(usuarioLogueado.id) !== id) {
+    return <Navigate to={`/perfil/${usuarioLogueado.id}`} replace />;
+  }
 
   if (cargando) {
     return <p>Cargando perfil...</p>;
