@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Usuario } from "../types/Usuario";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import type { Post } from "../types/Post"
 
 function PerfilDeUsuario() {
@@ -72,6 +72,11 @@ function PerfilDeUsuario() {
       <article key={publicacion.id}>
         <p>{publicacion.description}</p>
         <small>{new Date(publicacion.createdAt).toLocaleString()}</small>
+        <div>
+          <Link to={`/detalle/${publicacion.id}`} className="btn btn-primary btn-sm">
+            Ver Más
+          </Link>
+        </div>
         <hr />
       </article>
     ));
