@@ -6,7 +6,6 @@ import { UsuarioContext } from '../contextos/UsuarioContext';
 import CrearNuevaPublicacion from './crearNuevaPublicacion';
 
 function Home() {
-  const [publicaciones, setPublicaciones] = useState<Post[]>([])
   
   //Traemos el usuario logeado de inicioDeSesion.tsx
   const usuarioLogeado = useContext(UsuarioContext)
@@ -25,6 +24,11 @@ function Home() {
   
   //Agregamos un estado al formulario para crear publicación
   const [mostrarFormulario, setMostrarFormulario] = useState(false)
+
+  const [publicaciones, setPublicaciones] = useState<Post[]>([])
+
+  //Agregamos un estado al filtro para buscar publicaciones por filtro
+  const [filtroTag, setFiltroTag] = useState("")
 
   async function obtenerPublicaciones(){
     try{
@@ -45,6 +49,14 @@ function Home() {
   useEffect(() => {
     obtenerPublicaciones()
   }, [])
+
+  const publicacionesFiltradas = publicaciones.filter((publicacion) => {
+    //Si no hay ningun filtro, retorna todas
+    if(!filtroTag) return true
+    return publicacion.Tags?.some(
+      (tag) => tag.name.toLowerCase() === filtroTag.toLowerCase()
+    )
+  })
 
   return (
     <div className='container mt-4'>
@@ -91,7 +103,7 @@ function Home() {
       <h2>Bienvenido {usuarioLogeado?.usuario?.nickName}!</h2>
 
       {/* Div para crear publicación */}
-      <div className="card mt-3 mb-4">
+    <div className="card mt-3 mb-4">
       <div className="card-body">
 
         <p className="text-muted mb-3">
@@ -115,55 +127,73 @@ function Home() {
 
       </div>
     </div>
-
+    <div className="input-group">
+      
+      {/* Filtra las publicaciones con la etiqueta indicada en el input */}
+      <input type="text" className="form-control" 
+        placeholder="Buscar publicaciones por tag" 
+        value={filtroTag} onChange={(e) => setFiltroTag(e.target.value)}/>
+      <button className="btn btn-primary input-group-btn" type="button" id="button-addon">
+        Buscar
+      </button>
+    </div>
+          
       <div className="mt-4" style={{ height: '600px', overflowY: 'auto' }}>
 
-        {/* Mapea el array de publicaciones y las convierte en cards */}
-        {publicaciones.map((publicacion) => (
-          <div className="card mb-4" key={publicacion.id}>
+        {/* Si no encontró publicaciones con el tag indicado en el input, lanza una alerta.
+            Si encontró, las muestra */}
+        {publicacionesFiltradas.length === 0 ? (
+          <div className='alert alert-info'>
+            No se encontraron publicaciones con esa etiqueta.
+          </div>
+        ):(
+          publicacionesFiltradas
+          .map((publicacion) => (
+            <div className="card mb-4" key={publicacion.id}>
 
-            <div className="card-body">
+              <div className="card-body">
 
-              <h5 className="card-title"> 👤{publicacion.User?.nickName} </h5>
+                <h5 className="card-title"> 👤{publicacion.User?.nickName} </h5>
 
-              <p className="card-text"> {publicacion.description} ... </p>
+                <p className="card-text"> {publicacion.description} ... </p>
 
-              {/* Comprueba si la publicación tiene imágenes, si tiene las muestra */}
-              {publicacion.Tags && (
-                <p className="card-text">
-                  <small className="text-body-secondary">
-                   🏷️ Tags: {publicacion.Tags.map((tag) => tag.name).join(',')}
-                  </small>
-                </p>
-              )}
+                {/* Comprueba si la publicación tiene imágenes, si tiene las muestra */}
+                {publicacion.Tags && (
+                  <p className="card-text">
+                    <small className="text-body-secondary">
+                    🏷️ Tags: {publicacion.Tags.map((tag) => tag.name).join(',')}
+                    </small>
+                  </p>
+                )}
 
-              {/* Comprueba si la publicación tiene imágenes, si tiene las muestra */}
-              {publicacion.Imagenes && (
-                <div>
-                  
-                  {publicacion.Imagenes?.map((imagen) => (
-                    <img
-                      key={imagen.id}
-                      src={imagen.url}
-                      className="img-fluid rounded mb-2"
-                      alt="Imagen de la publicación"
-                    />
-                  ))}
+                {/* Comprueba si la publicación tiene imágenes, si tiene las muestra */}
+                {publicacion.Imagenes && (
+                  <div>
+                    
+                    {publicacion.Imagenes?.map((imagen) => (
+                      <img
+                        key={imagen.id}
+                        src={imagen.url}
+                        className="img-fluid rounded mb-2"
+                        alt="Imagen de la publicación"
+                      />
+                    ))}
+                  </div>
+                )}
+
+                <Link to={`/detalle/${publicacion.id}`} className='btn btn-primary'>
+                  Ver más
+                </Link>
+
+                <div className="post-footer">
+                  <span>💬 {publicacion.Comments?.length || 0} comentarios</span>
                 </div>
-              )}
 
-              <Link to={`/detalle/${publicacion.id}`} className='btn btn-primary'>
-                Ver más
-              </Link>
-
-              <div className="post-footer">
-                <span>💬 {publicacion.Comments?.length || 0} comentarios</span>
               </div>
 
             </div>
-
-          </div>
-        ))}
+        ))
+      )}
 
       </div>
 

@@ -1,7 +1,7 @@
 function NotFound() {
   return (
     <div className="container text-center mt-5">
-      <h1>404</h1>
+      <h1 style={{color:"red"}}>404</h1>
       <h2>Página no encontrada</h2>
 
       <p className="text-muted">
