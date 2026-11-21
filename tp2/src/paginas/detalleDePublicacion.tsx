@@ -3,10 +3,14 @@ import type { Post } from "../types/Post";
 import type { PostImagen } from "../types/PostImagen";
 import type {Comentario} from "../types/Comentario";
 import type { Usuario } from "../types/Usuario";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { UsuarioContext } from "../contextos/UsuarioContext";
 
 function DetalleDePublicacion() {
   const { id } = useParams<{ id: string }>();
+
+  // Traemos el usuario logeado para asignarlo al crear un comentario
+  const usuarioLogeado = useContext(UsuarioContext)
 
   const [publicacion, setPublicacion] = useState<Post | null>(null);
 
@@ -14,16 +18,19 @@ function DetalleDePublicacion() {
 
   const [comentarios, setComentarios] = useState<Comentario[]>([]);
 
-  const [autorPost, setAutorPost] = useState<Usuario | null>(null);
-
   const [cargando, setCargando] = useState<boolean>(true);
+
+  const [autorPost, setAutorPost] = useState<Usuario | null>(null)
+
+  // Estado para el formulario controlado de nuevo comentario
+  const [contenidoComentario, setContenidoComentario] = useState<string>("")
 
   const API_URL = "http://localhost:3001";
 
   useEffect(() => {
-    if (!id) return;
-    let cancelado = false;
-    setCargando(true);
+    if(!id) return
+    let cancelado = false
+    setCargando(true)
 
     const obtenerPublicacion = async () => {
       try {
@@ -33,10 +40,16 @@ function DetalleDePublicacion() {
         }
         const publicacionData = await respuesta.json();
 
+        // Consultamos los comentarios al endpoint
+        const respuestaComentarios = await fetch(`${API_URL}/comments/post/${id}`)
+        const comentariosData = respuestaComentarios.ok
+          ? await respuestaComentarios.json()
+          :[]
+
         if (!cancelado) {
           setPublicacion(publicacionData);
           setImagenes(publicacionData.Imagenes || []);
-          setComentarios(publicacionData.Comments || []);
+          setComentarios(comentariosData);
           setAutorPost(publicacionData.User || null);
         }
       } catch (error) {
@@ -66,44 +79,53 @@ function DetalleDePublicacion() {
     ));
   }
 
-  async function crearComentario() {
-    const contenidoComentario = prompt("Ingrese el contenido del comentario:");
-    if (contenidoComentario) {
+  async function crearComentario(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    
+    if (!contenidoComentario.trim()) {
+      alert("El comentario no puede estar vacío.")
+      return
+    }
+
+    if(!usuarioLogeado?.usuario){
+      alert("Debes inciar sesión para comentar.")
+      return
+    }
       // Ideal: obtener el id del usuario logueado desde tu contexto de autenticación
-      const nuevoComentario: Comentario = {
-        id: 0,
-        content: contenidoComentario.trim(),
-        createdAt: new Date().toISOString(),
-        PostId: Number(id),
-        UserId: autorPost ? autorPost.id : 0,
-      };
-      try {
-        const respuesta = await fetch(`${API_URL}/comments`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(nuevoComentario),
-        });
-        if (!respuesta.ok) {
-          throw new Error("Error al crear el comentario");
-        }
-        const comentarioCreado = await respuesta.json();
-        setComentarios(prevComentarios => [...prevComentarios, comentarioCreado]);
-      } catch (error) {
-        console.error("Error al crear el comentario:", error);
+    const nuevoComentario: Comentario = {
+      id: 0,
+      content: contenidoComentario.trim(),
+      createdAt: new Date().toISOString(),
+      PostId: Number(id),
+      UserId: usuarioLogeado.usuario.id,
+    };
+
+    try {
+      const respuesta = await fetch(`${API_URL}/comments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(nuevoComentario),
+      });
+      if (!respuesta.ok) {
+        throw new Error("Error al crear el comentario");
       }
-    }
-
-    if (cargando) {
-      return <p>Cargando publicacion...</p>;
-    }
-
-    if (!publicacion) {
-      return <p>No se encontró la publicación.</p>;
+      const comentarioCreado = await respuesta.json();
+      setComentarios((prevComentarios) => [...prevComentarios, comentarioCreado]);
+      setContenidoComentario("")
+    } catch (error) {
+      console.error("Error al crear el comentario:", error);
     }
   }
 
+  if (cargando) {
+    return <p>Cargando publicacion...</p>;
+  }
+
+  if (!publicacion) {
+    return <p>No se encontró la publicación.</p>;
+  }
 
   return (
     <div>
@@ -129,8 +151,14 @@ function DetalleDePublicacion() {
           <li>No hay comentarios disponibles</li>
         )}
       </ul>
-      <button onClick={crearComentario}>Agregar Comentario</button>
-
+      
+      <form onSubmit={crearComentario}>
+        <input type="text" placeholder="Escribí un comentario..."
+          value={contenidoComentario}
+          onChange={(e) => setContenidoComentario(e.target.value)}
+        />
+        <button type="submit">Agregar Comentario</button>
+      </form>
     </div>
   );
 }

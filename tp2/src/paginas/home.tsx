@@ -39,8 +39,32 @@ function Home() {
       }
 
       const datos: Post[] = await respuesta.json()
-      setPublicaciones(datos)
       
+      //Consultamos los comentarios visibles de cada publicación al endpoint
+      const publicacionesConComentarios = await Promise.all(
+        datos.map(async (post) => {
+          try{
+            const resComentarios = await fetch(`http://localhost:3001/comments/post/${post.id}`)
+            const comentarios = resComentarios.ok
+              ? await resComentarios.json()
+              :[]
+            
+              // Devolvemos el post original agregándole la propiedad Comments con los datos
+              return{
+                ...post,
+                Comments: comentarios,
+              }
+          } catch{
+            return {
+              ...post,
+              Comments: [],
+            }
+          }
+        })
+      )
+
+      // Guardamos en el estado las publicaciones completas
+      setPublicaciones(publicacionesConComentarios)
     } catch(error){
       console.error("Error al obtener las publicaciones:", error)
       setError('No se pudieron cargar las publicaciones.')
