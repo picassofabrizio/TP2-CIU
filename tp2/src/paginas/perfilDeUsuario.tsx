@@ -1,10 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import type { Usuario } from "../types/Usuario";
-import { useParams } from "react-router-dom";
+import { useParams, Link, Navigate } from "react-router-dom";
+import { UsuarioContext } from "../contextos/UsuarioContext";
 import type { Post } from "../types/Post"
 
 function PerfilDeUsuario() {
+  //* Leemos el :id de la URL (/perfil/:id)
   const { id } = useParams<{ id: string }>();
+  //* Usuario logueado
+  const contexto = useContext(UsuarioContext);
+  const usuarioLogueado = contexto?.usuario;
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [publicaciones, setPublicaciones] = useState<Post[]>([]);
   const [cargando, setCargando] = useState<boolean>(true);
@@ -17,15 +22,18 @@ function PerfilDeUsuario() {
       return;
     }
 
+    //* Evita actualizar el estado si el componente se desmontó
     let cancelado = false;
     setCargando(true);
     setError(null);
 
     const cargarPerfilYPublicaciones = async () => {
       try {
+        //* Pedimos el usuario y sus posts en paralelo
+        //* Los posts de un usuario se piden con /posts?userId=ID
         const [resUsuario, resPosts] = await Promise.all([
           fetch(`http://localhost:3001/users/${id}`),
-          fetch(`http://localhost:3001/users/${id}/posts`),
+          fetch(`http://localhost:3001/posts?userId=${id}`),
         ]);
 
         if (!resUsuario.ok) {
@@ -58,31 +66,30 @@ function PerfilDeUsuario() {
     };
   }, [id]);
 
-  const renderPublicacionesConImagenes = () => {
-    if (publicaciones.length === 0){
-      <p>Este usuario aun no tiene publicaciones</p>
+  //* Lista de publicaciones del usuario
+  const renderPublicaciones = () => {
+    //* Si no hay posts, avisamos (antes faltaba el return)
+    if (publicaciones.length === 0) {
+      return <p>Este usuario aún no tiene publicaciones</p>;
     }
-    return publicaciones.map((publicacion) => {
-      const imagenesDePublicacion = publicacion.Imagenes || [];
-      return (
-        <article key={publicacion.id}>
-          <p>{publicacion.description}</p>
-          {imagenesDePublicacion.length > 0 && (
-            <div>
-              <h4>Imágenes:</h4>
-              {imagenesDePublicacion.map((imagen) => (
-                <img
-                  key={imagen.id}
-                  src={imagen.url}
-                  alt={`Imagen ${imagen.id} de la publicación`}
-                />
-              ))}
-            </div>
-          )}
-        </article>
-      );
-    });
+    return publicaciones.map((publicacion) => (
+      <article key={publicacion.id}>
+        <p>{publicacion.description}</p>
+        <small>{new Date(publicacion.createdAt).toLocaleString()}</small>
+        <div>
+          <Link to={`/detalle/${publicacion.id}`} className="btn btn-primary btn-sm">
+            Ver Más
+          </Link>
+        </div>
+        <hr />
+      </article>
+    ));
   };
+  //* Solo se puede ver el perfil propio: si el id de la URL no coincide
+  //* con el del usuario logueado, redirigimos a su propio perfil
+  if (usuarioLogueado && String(usuarioLogueado.id) !== id) {
+    return <Navigate to={`/perfil/${usuarioLogueado.id}`} replace />;
+  }
 
   if (cargando) {
     return <p>Cargando perfil...</p>;
@@ -102,8 +109,8 @@ function PerfilDeUsuario() {
       </div>
 
       <h2>Publicaciones de {usuario.nickName}</h2>
-      {renderPublicacionesConImagenes()}
-    </div> 
+      {renderPublicaciones()}
+    </div>
   );
 }
 

@@ -11,7 +11,7 @@ function CrearNuevaPublicacion() {
 
   const postPublicacion = "http://localhost:3001/posts/";
 
-  const postPublicacionImagenes = "http://localhost:3001/postimagenes/";
+  const postPublicacionImagenes = "http://localhost:3001/postimages/";
 
   if (!authContext || !authContext.usuario) {
     return <p>Debe iniciar sesión para crear una publicación.</p>;
