@@ -3,6 +3,7 @@ import PantallaInicial from "./paginas/pantallaInicial";
 import Home from "./paginas/home";
 import DetalleDePublicacion from "./paginas/detalleDePublicacion";
 import PerfilDeUsuario from "./paginas/perfilDeUsuario";
+import NotFound from "./components/NotFound";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Route path="/home" element={<Home />} />
       <Route path="/detalle/:id" element={<DetalleDePublicacion />} />
       <Route path="/perfil" element={<PerfilDeUsuario/>} />
+      <Route path="*" element={<NotFound/>}/>
     </Routes>
   );
 }

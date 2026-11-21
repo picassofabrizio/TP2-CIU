@@ -3,7 +3,7 @@ import type { Post } from '../types/Post'
 import { Link, useNavigate } from 'react-router-dom'
 import { useContext } from 'react';
 import { UsuarioContext } from '../contextos/UsuarioContext';
-
+import CrearNuevaPublicacion from './crearNuevaPublicacion';
 
 function Home() {
   const [publicaciones, setPublicaciones] = useState<Post[]>([])
@@ -12,24 +12,32 @@ function Home() {
   const usuarioLogeado = useContext(UsuarioContext)
   const navigate = useNavigate()
 
+  //Función para cerrar sesión
   function cerrarSesion() {
-    usuarioLogeado?.setUsuario(null)
-    localStorage.removeItem("usuario")
-    navigate('/')
+    try {
+      usuarioLogeado?.setUsuario(null)
+      localStorage.removeItem("usuario")
+      navigate('/')
+    } catch(error){
+      console.error("Error al cerrar sesión", error)
+    }
   }
   
+  //Agregamos un estado al formulario para crear publicación
+  const [mostrarFormulario, setMostrarFormulario] = useState(false)
+
   async function obtenerPublicaciones(){
     try{
       const respuesta = await fetch('http://localhost:3001/posts')
       if(!respuesta.ok){
-        throw new Error("Error al obtener los productos")
+        throw new Error("Error al obtener las publicaciones")
       }
 
       const datos: Post[] = await respuesta.json()
       setPublicaciones(datos)
       
     } catch(error){
-      console.error("Error al obtener los productos:", error)
+      console.error("Error al obtener las publicaciones:", error)
     }
   }
 
@@ -45,34 +53,69 @@ function Home() {
         Anti-Social - Inicio
       </span>
 
-        <div className="dropdown">
-            <button
-              className="btn btn-light dropdown-toggle fw-bold"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-             👤 {usuarioLogeado?.usuario?.nickName}
-            </button>
+        {/* Si hay un usuario logeado, se muestra el botón con su nickname 
+        y las opciones para ir al perfil y cerrar sesión */}
+        {usuarioLogeado?.usuario ? (
+          <div className="dropdown">
+              <button
+                className="btn btn-light dropdown-toggle fw-bold"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+              👤 {usuarioLogeado?.usuario?.nickName}
+              </button>
 
-            <ul className="dropdown-menu dropdown-menu-end">
-              <li>
-                <Link className="dropdown-item" to="/perfil">
-                  Perfil
-                </Link>
-              </li>
+              <ul className="dropdown-menu dropdown-menu-end">
+                <li>
+                  <Link className="dropdown-item" to="/perfil">
+                    Perfil
+                  </Link>
+                </li>
 
-              <li>
-                <button className="dropdown-item" onClick={cerrarSesion}>
-                  Cerrar sesión
-                </button>
-              </li>
-            </ul>
+                <li>
+                  <button className="dropdown-item" onClick={cerrarSesion}>
+                    Cerrar sesión
+                  </button>
+                </li>
+              </ul>
           </div>
-    </nav>
+          // Si no hay usuario logeado, se muestra el botón de inicio de sesión
+        ) : (
+          <Link to='/' className='btn btn-primary'>
+            Iniciar sesión
+          </Link>
+        )}
+      </nav>
 
-      <h2>Bienvenido, {usuarioLogeado?.usuario?.nickName}!</h2>
-        
+      <h2>Bienvenido {usuarioLogeado?.usuario?.nickName}!</h2>
+
+      {/* Div para crear publicación */}
+      <div className="card mt-3 mb-4">
+      <div className="card-body">
+
+        <p className="text-muted mb-3">
+          ¿Qué estás pensando, {usuarioLogeado?.usuario?.nickName}?
+        </p>
+
+        <button
+          className="btn btn-primary"
+          onClick={() => setMostrarFormulario(!mostrarFormulario)}
+        >
+          {/* Cuando el botón está en "crear publicacion", 
+          al hacer click cambia a "cancelar" y viceversa */}
+          {mostrarFormulario ? "Cancelar" : "Crear publicación"}
+        </button>
+
+        {mostrarFormulario && (
+          <div className="mt-4">
+            <CrearNuevaPublicacion />
+          </div>
+        )}
+
+      </div>
+    </div>
+
       <div className="mt-4" style={{ height: '600px', overflowY: 'auto' }}>
 
         {/* Mapea el array de publicaciones y las convierte en cards */}
@@ -83,7 +126,7 @@ function Home() {
 
               <h5 className="card-title"> 👤{publicacion.User?.nickName} </h5>
 
-              <p className="card-text"> {publicacion.description} </p>
+              <p className="card-text"> {publicacion.description} ... </p>
 
               {/* Comprueba si la publicación tiene imágenes, si tiene las muestra */}
               {publicacion.Tags && (

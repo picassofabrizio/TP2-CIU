@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { UsuarioContext } from "../contextos/UsuarioContext";
 import type {Post} from "../types/Post";
 
-function crearNuevaPublicacion() {
+function CrearNuevaPublicacion() {
 
   const authContext = useContext(UsuarioContext);
   const [mensaje, setMensaje] = useState<string | null>(null);
@@ -114,4 +114,4 @@ function crearNuevaPublicacion() {
   );
 }
 
-export default crearNuevaPublicacion;
+export default CrearNuevaPublicacion;
