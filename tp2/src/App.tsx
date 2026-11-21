@@ -14,7 +14,7 @@ function App() {
       {/* Página principal */}
       <Route path="/home" element={<Home />} />
       <Route path="/detalle/:id" element={<DetalleDePublicacion />} />
-      <Route path="/perfil" element={<PerfilDeUsuario/>} />
+      <Route path="/perfil/:id" element={<PerfilDeUsuario/>} />
       <Route path="*" element={<NotFound/>}/>
     </Routes>
   );
