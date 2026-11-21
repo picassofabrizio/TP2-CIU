@@ -188,16 +188,12 @@ function DetalleDePublicacion() {
         {/* Si hay un usuario logeado, se muestra el botón con su nickname 
           y las opciones para ir al perfil y cerrar sesión */}
         {usuario ? (
-          <div className="dropdown">
-            <button
-              className="btn btn-light dropdown-toggle fw-bold"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              👤 {usuario.nickName}
-            </button>      
-          </div>
+          <Link 
+            to={`/perfil/${usuario.id}`}
+            className="btn btn-light fw-bold"
+          >
+            👤 {usuario.nickName}
+          </Link>
           // Si no hay usuario logeado, se muestra el botón de inicio de sesión
         ) : (
           <Link to='/' className='btn btn-primary'>
