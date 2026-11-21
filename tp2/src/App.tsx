@@ -4,6 +4,7 @@ import Home from "./paginas/home";
 import DetalleDePublicacion from "./paginas/detalleDePublicacion";
 import PerfilDeUsuario from "./paginas/perfilDeUsuario";
 import NotFound from "./components/NotFound";
+import RutaProtegida from "./components/RutaProtegida";
 
 function App() {
   return (
@@ -14,8 +15,9 @@ function App() {
       {/* Página principal */}
       <Route path="/home" element={<Home />} />
       <Route path="/detalle/:id" element={<DetalleDePublicacion />} />
-      <Route path="/perfil/:id" element={<PerfilDeUsuario/>} />
-      <Route path="*" element={<NotFound/>}/>
+      {/* Rutas protegidas: solo con usuario logueado */}
+      <Route path="/perfil/:id" element={<RutaProtegida> <PerfilDeUsuario /> </RutaProtegida>}/>
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
