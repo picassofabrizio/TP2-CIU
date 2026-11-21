@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import type { Post } from "../types/Post";
 import type { PostImagen } from "../types/PostImagen";
 import type { Comentario } from "../types/Comentario";
@@ -90,11 +90,20 @@ function DetalleDePublicacion() {
     if (imagenes.length === 0) {
       return <li>No hay imágenes disponibles</li>;
     }
-    return imagenes.map((imagen) => (
-      <li key={imagen.id}>
-        <img src={imagen.url} alt={`Imagen ${imagen.id}`} />
-      </li>
-    ));
+    return(
+      <ul className="list-unstyled d-flex flex-wrap gap-2 mb-3"> 
+        {imagenes.map((imagen) => (
+          <li key={imagen.id}>
+            <img 
+              src={imagen.url} 
+              alt={`Imagen ${imagen.id}`}
+              className="img-fluid rounded mb-2 d-block"
+              style={{ maxHeight: "450px", objectFit: "cover" }}  
+            />
+          </li>
+        ))}
+      </ul>
+    )
   }
 
   //* Se ejecuta al enviar el formulario de comentarios
@@ -168,58 +177,150 @@ function DetalleDePublicacion() {
   }
 
   return (
-    <div>
-      <h1>Detalle de Publicación</h1>
-      <p>ID de la publicación: {id}</p>
-
-      {/* Imágenes del post */}
-      <p>Imágenes:</p>
-      <ul>
-        {renderImagenes()}
-      </ul>
-
-      {/* Datos del post */}
-      <p>Descripción: {publicacion?.description}</p>
-      <p>Creado por: {autorPost?.nickName ?? publicacion?.User?.nickName}</p>
-      <p>Fecha de creación: {publicacion?.createdAt}</p>
-      <p>Tags: {publicacion?.Tags?.map((tag) => tag.name).join(", ")}</p>
-
-      {/* Lista de comentarios con el nombre de quien los escribió */}
-      <p>Comentarios: </p>
-      <ul>
-        {comentarios.length > 0 ? (
-          comentarios.map((comentario, index) => (
-            <li key={comentario.id ?? index}>
-              <strong>{comentario.User?.nickName ?? "Anónimo"}</strong>: {comentario.content}
-            </li>
-          ))
-        ) : (
-          <li>No hay comentarios disponibles</li>
-        )}
-      </ul>
-
-      {/* Formulario controlado: solo si hay usuario logueado */}
-      {usuario ? (
-        <form onSubmit={crearComentario}>
-          <div>
-            <label htmlFor="comentario">Agregar comentario:</label>
-            {/* value + onChange = componente controlado por useState */}
-            <input
-              type="text"
-              id="comentario"
-              value={textoComentario}
-              onChange={(e) => setTextoComentario(e.target.value)}
-            />
+    <div className="container mt-4 mb-5">
+      <nav className="navbar navbar-light bg-light px-3 mb-4 rounded shadow-sm">
+        
+        {/* El logo es un botón que lleva al home */}
+        <Link to="/home" className="navbar-brand fw-bold">
+          Anti-Social Net
+        </Link>
+      
+        {/* Si hay un usuario logeado, se muestra el botón con su nickname 
+          y las opciones para ir al perfil y cerrar sesión */}
+        {usuario ? (
+          <div className="dropdown">
+            <button
+              className="btn btn-light dropdown-toggle fw-bold"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              👤 {usuario.nickName}
+            </button>      
           </div>
-          {/* Mensaje de error en rojo (vacío, sin sesión o error del servidor) */}
-          {errorComentario && <p style={{ color: "red" }}>{errorComentario}</p>}
-          <button type="submit" disabled={enviando}>
-            {enviando ? "Enviando..." : "Agregar Comentario"}
-          </button>
-        </form>
-      ) : (
-        <p>Iniciá sesión para comentar.</p>
-      )}
+          // Si no hay usuario logeado, se muestra el botón de inicio de sesión
+        ) : (
+          <Link to='/' className='btn btn-primary'>
+            Iniciar sesión
+          </Link>
+        )}
+      </nav>
+
+      <h1>Detalle de Publicación</h1>
+      
+      {/* Botón para regresar al Home */}
+      <div className="mb-3">
+        <Link to="/home" className="btn btn-outline-secondary btn-sm">
+          ← Volver al inicio
+        </Link>
+      </div>
+
+      {/* Estado de carga con el mismo estilo del Home */}
+      {cargando ? (
+        <div className="text-center my-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Cargando...</span>
+          </div>
+          <p className="mt-2 text-muted">Cargando publicación...</p>
+        </div>
+        ) : !publicacion ? (
+          <div className="alert alert-warning" role="alert">
+            No se encontró la publicación solicitad.
+          </div>
+        ) : (
+          <>
+            {/* Tarjeta principal de la publicación */}
+            <div className="card mb-4 shadow-sm">
+              
+              {/* Autor */}
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <h5 className="card-title fw-bold mb-0">
+                  👤 {autorPost?.nickName ?? publicacion?.User?.nickName}
+                </h5>
+                <small className="text-muted">
+                  <p>Publicado el {publicacion?.createdAt}</p>
+                </small>
+              </div>
+
+              {/* Tags */}
+              <p className="card-text fs-5 my-3">{publicacion?.description}</p>
+              {publicacion?.Tags && publicacion.Tags.length > 0 && (
+                <div className="mb-3">
+                  {publicacion.Tags.map((tag) => (
+                    <span key={tag.id} className="badge bg-secondary me-1">
+                      #{tag.name}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Imagenes */}
+              {renderImagenes()}
+
+              {/* Comentarios */}
+              <div className="border-top pt-3 text-muted">
+                <span>💬{comentarios.length} comentarios</span>
+              </div>
+
+              {/* Tarjeta de comentarios y formulario */}
+              <div className="card shadow-sm">
+                <div className="card-body">
+                  <h5 className="fw-bold mb-3">
+                    Comentarios
+                  </h5>
+
+                  {comentarios.length > 0 ? (
+                    <ul className="list-group list-group-flush mb-4">
+                      {comentarios.map((comentario, index) => (
+                      <li key={comentario.id ?? index} className="list-group-item px-0 py-3">
+                        <div className="fw-bold mb-1">
+                          👤 {comentario.User?.nickName ?? "Anónimo"}
+                        </div>
+                        <div> {comentario.content} </div>
+                      </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="alert alert-light border text-muted mb-4">
+                      No hay comentarios todavía. ¡Se el primero en comentar!
+                    </div>
+                  )}
+
+                  {/* Formulario controlado: solo si hay usuario logueado */}
+                  {usuario ? (
+                    <form onSubmit={crearComentario} className="border-top pt-3">
+                      <div className="mb-3">
+                        <label htmlFor="comentario" className="form-label fw-bold">
+                          Agregar comentario:
+                        </label>
+                        {/* value + onChange = componente controlado por useState */}
+                        <textarea
+                          className="form-control"
+                          rows={3}
+                          id="comentario"
+                          placeholder="Escribí lo que pensás sobre esta publicación..."
+                          value={textoComentario}
+                          onChange={(e) => setTextoComentario(e.target.value)}
+                        />
+                      </div>
+                      {/* Mensaje de error en rojo (vacío, sin sesión o error del servidor) */}
+                      {errorComentario && <p style={{ color: "red" }}>{errorComentario}</p>}
+                      <button type="submit" className="btn btn-primary" disabled={enviando}>
+                        {enviando ? "Enviando..." : "Agregar Comentario"}
+                      </button>
+                    </form>
+                  ) : (
+                    <p>Iniciá sesión para comentar.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </>
+        )
+      }
+
+      <p>ID de la publicación: {id}</p>
+      
 
     </div>
   );
