@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import type { Post } from "../types/Post"
 
 function PerfilDeUsuario() {
+  //* Leemos el :id de la URL (/perfil/:id)
   const { id } = useParams<{ id: string }>();
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [publicaciones, setPublicaciones] = useState<Post[]>([]);
@@ -17,15 +18,18 @@ function PerfilDeUsuario() {
       return;
     }
 
+    //* Evita actualizar el estado si el componente se desmontó
     let cancelado = false;
     setCargando(true);
     setError(null);
 
     const cargarPerfilYPublicaciones = async () => {
       try {
+        //* Pedimos el usuario y sus posts en paralelo
+        //* Los posts de un usuario se piden con /posts?userId=ID
         const [resUsuario, resPosts] = await Promise.all([
           fetch(`http://localhost:3001/users/${id}`),
-          fetch(`http://localhost:3001/users/${id}/posts`),
+          fetch(`http://localhost:3001/posts?userId=${id}`),
         ]);
 
         if (!resUsuario.ok) {
@@ -58,30 +62,19 @@ function PerfilDeUsuario() {
     };
   }, [id]);
 
-  const renderPublicacionesConImagenes = () => {
-    if (publicaciones.length === 0){
-      <p>Este usuario aun no tiene publicaciones</p>
+  //* Lista de publicaciones del usuario
+  const renderPublicaciones = () => {
+    //* Si no hay posts, avisamos (antes faltaba el return)
+    if (publicaciones.length === 0) {
+      return <p>Este usuario aún no tiene publicaciones</p>;
     }
-    return publicaciones.map((publicacion) => {
-      const imagenesDePublicacion = publicacion.Imagenes || [];
-      return (
-        <article key={publicacion.id}>
-          <p>{publicacion.description}</p>
-          {imagenesDePublicacion.length > 0 && (
-            <div>
-              <h4>Imágenes:</h4>
-              {imagenesDePublicacion.map((imagen) => (
-                <img
-                  key={imagen.id}
-                  src={imagen.url}
-                  alt={`Imagen ${imagen.id} de la publicación`}
-                />
-              ))}
-            </div>
-          )}
-        </article>
-      );
-    });
+    return publicaciones.map((publicacion) => (
+      <article key={publicacion.id}>
+        <p>{publicacion.description}</p>
+        <small>{new Date(publicacion.createdAt).toLocaleString()}</small>
+        <hr />
+      </article>
+    ));
   };
 
   if (cargando) {
@@ -102,8 +95,8 @@ function PerfilDeUsuario() {
       </div>
 
       <h2>Publicaciones de {usuario.nickName}</h2>
-      {renderPublicacionesConImagenes()}
-    </div> 
+      {renderPublicaciones()}
+    </div>
   );
 }
 
