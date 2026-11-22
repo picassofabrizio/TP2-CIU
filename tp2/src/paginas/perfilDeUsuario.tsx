@@ -1,10 +1,11 @@
 import { useState, useEffect, useContext } from "react";
 import type { Usuario } from "../types/Usuario";
-import { useParams, Link, Navigate } from "react-router-dom";
+import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
 import { UsuarioContext } from "../contextos/UsuarioContext";
 import type { Post } from "../types/Post"
 
 function PerfilDeUsuario() {
+  const navigate = useNavigate();
   //* Leemos el :id de la URL (/perfil/:id)
   const { id } = useParams<{ id: string }>();
   //* Usuario logueado
@@ -66,6 +67,13 @@ function PerfilDeUsuario() {
     };
   }, [id]);
 
+  //* Cierra la sesión: limpia el contexto y el localStorage, y vuelve al login
+  function cerrarSesion() {
+    contexto?.setUsuario(null);
+    localStorage.removeItem("usuario");
+    navigate("/");
+  }
+
   //* Lista de publicaciones del usuario
   const renderPublicaciones = () => {
     //* Si no hay posts, avisamos (antes faltaba el return)
@@ -107,6 +115,10 @@ function PerfilDeUsuario() {
         <p>NickName: {usuario.nickName}</p>
         {usuario.email && <p>Correo: {usuario.email}</p>}
       </div>
+      {/* Botón para cerrar sesión */}
+      <button className="btn btn-outline-danger btn-sm mb-3" onClick={cerrarSesion}>
+        Cerrar sesión
+      </button>
 
       <h2>Publicaciones de {usuario.nickName}</h2>
       {renderPublicaciones()}
