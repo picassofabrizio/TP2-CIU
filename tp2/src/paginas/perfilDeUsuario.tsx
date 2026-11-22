@@ -44,9 +44,25 @@ function PerfilDeUsuario() {
         const usuarioData: Usuario = await resUsuario.json();
         const postsData: Post[] = resPosts.ok ? await resPosts.json() : [];
 
+        //* Consultamos los comentarios visibles de cada publicación
+        const postsConComentarios = await Promise.all(
+          postsData.map(async (post) => {
+            try {
+              const resComentarios = await fetch(
+                `http://localhost:3001/comments/post/${post.id}`
+              );
+              const comentarios = resComentarios.ok ? await resComentarios.json() : [];
+              //* Devolvemos el post original agregándole la propiedad Comments
+              return { ...post, Comments: comentarios };
+            } catch {
+              return { ...post, Comments: [] };
+            }
+          })
+        );
+
         if (!cancelado) {
           setUsuario(usuarioData);
-          setPublicaciones(postsData);
+          setPublicaciones(postsConComentarios);
         }
       } catch (error) {
         if (!cancelado) {
@@ -84,6 +100,8 @@ function PerfilDeUsuario() {
       <article key={publicacion.id}>
         <p>{publicacion.description}</p>
         <small>{new Date(publicacion.createdAt).toLocaleString()}</small>
+        {/* Cantidad de comentarios visibles del post */}
+        <p>💬 {publicacion.Comments?.length || 0} comentarios</p>
         <div>
           <Link to={`/detalle/${publicacion.id}`} className="btn btn-primary btn-sm">
             Ver Más
@@ -109,18 +127,19 @@ function PerfilDeUsuario() {
 
 
   return (
-    <div>
-      <h1>Perfil de Usuario</h1>
-      <div>
-        <p>NickName: {usuario.nickName}</p>
-        {usuario.email && <p>Correo: {usuario.email}</p>}
+    <div className="container mt-4 text-start">
+      <div className="card shadow-sm mb-4">
+        <div className="card-body d-flex justify-content-between align-items-center">
+          <div>
+            <h1 className="h3 mb-1">👤 {usuario.nickName}</h1>
+            {usuario.email && <p className="text-muted mb-0">{usuario.email}</p>}
+          </div>
+          <button className="btn btn-outline-danger btn-sm" onClick={cerrarSesion}>
+            Cerrar sesión
+          </button>
+        </div>
       </div>
-      {/* Botón para cerrar sesión */}
-      <button className="btn btn-outline-danger btn-sm mb-3" onClick={cerrarSesion}>
-        Cerrar sesión
-      </button>
-
-      <h2>Publicaciones de {usuario.nickName}</h2>
+      <h2 className="h4 mb-3">Publicaciones de {usuario.nickName}</h2>
       {renderPublicaciones()}
     </div>
   );
