@@ -106,27 +106,68 @@ function CrearNuevaPublicacion() {
   };
 
   return (
-    <div>
-      <h1>Crear Nueva Publicación</h1>
-      {mensaje && <p style={{ color: "green" }}>{mensaje}</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="descripcion">Descripción:</label>
-          <input type="text" id="descripcion" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} required />
-        </div>
-        <div>
-          <label htmlFor="tags">Tags (separados por comas):</label>
-          <input type="text" id="tags" name="tags" placeholder="Ingresá tus tags separados por comas" />
-        </div>
-        <div>
-          <label htmlFor="imagenes">Imágenes (URLs separadas por comas):</label>
-          <input type="text" id="imagenes" name="imagenes" placeholder="Ingresá las URLs de las imágenes separadas por comas" />
-        </div>
-        <button type="submit" disabled={enviado}>
-          {enviado ? "Creando..." : "Crear Publicación"}
-        </button>
-      </form>
+    <div className="card mt-3 mb-4" shadow-sm>
+      <div className="card-body">
+        <h5 className="card-title fw-bold mb-3">Crear Nueva Publicación</h5>
+        {mensaje && <p style={{ color: "green" }}>{mensaje}</p>}
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label htmlFor="descripcion" className="form-label fw-bold">
+              Descripción:
+            </label>
+            <textarea id="descripcion" 
+              className="form-control" 
+              rows={3} 
+              placeholder="¿Qué querés compartir?" 
+              value={descripcion} 
+              onChange={(e) => setDescripcion(e.target.value)} 
+              required 
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="tags" className="form-label fw-bold">
+              Tags (separados por comas):
+            </label>
+            <div className="input-group">
+              <span className="input-group-text">
+                🏷️
+              </span>
+              <input 
+                type="text" 
+                id="tags" 
+                name="tags" 
+                className="form-control" 
+                placeholder="Ingresá tus tags separados por comas" 
+              />
+            </div>
+          </div>
+
+          <div className="mb-3">
+            <label htmlFor="imagenes" className="form-label fw-bold">
+              Imágenes (URLs separadas por comas):
+            </label>
+          </div>
+          <div className="input-group">
+            <span className="input-group-text">
+              🖼️
+            </span>
+            <input 
+              type="text" 
+              id="imagenes" 
+              name="imagenes" 
+              className="form-control"
+              placeholder="Ingresá las URLs de las imágenes separadas por comas" 
+            />
+          </div>
+
+          <div className="d-flex justify-content-end">
+            <button type="submit" className="btn btn-primary" disabled={enviado}>
+              {enviado ? "Creando..." : "Crear Publicación"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
