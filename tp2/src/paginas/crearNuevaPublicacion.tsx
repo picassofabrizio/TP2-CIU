@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { UsuarioContext } from "../contextos/UsuarioContext";
 import type { Tag } from "../types/Tag";
+import { useNavigate } from "react-router-dom";
 
 function CrearNuevaPublicacion() {
 
@@ -10,6 +11,7 @@ function CrearNuevaPublicacion() {
   const [descripcion, setDescripcion] = useState<string>("");
   const [etiquetas, setEtiquetas] = useState<Tag[]>([]);
   const [tagsSeleccionados, setTagSeleccionados] = useState<number[]>([]);
+  const navigate = useNavigate();
   const [imagenes, setImagenes] = useState<string[]>([""]);
   const [enviado, setEnviado] = useState<boolean>(false);
 
@@ -41,17 +43,23 @@ function CrearNuevaPublicacion() {
 
   const {usuario} = authContext;
 
+  function cambiarImagen(posicion: number, nuevaUrl: string) {
+    const nuevas= [...imagenes];
+    nuevas[posicion] = nuevaUrl;
+    setImagenes(nuevas);
+  }
+
+  function agregarImagen() {
+    setImagenes([...imagenes, ""]);
+  }
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setMensaje(null);
     setError(null);
     setEnviado(true);
 
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    
-    const imagenes = ((formData.get("imagenes") as string) || "").split(",").map(url => url.trim()).filter(Boolean);
-
+    const imagenesValidas = imagenes.map((url) => url.trim()).filter((url): url is string => url !== "");
     if (!descripcion.trim()) {
       setError("La descripción es obligatoria.");
       setEnviado(false);
@@ -62,7 +70,7 @@ function CrearNuevaPublicacion() {
     const postData = {
       description: descripcion.trim(),
       userId: usuario.id,
-      tagIds: [] as number [],
+      tagIds: tagsSeleccionados,
     };
 
     try {
@@ -80,7 +88,7 @@ function CrearNuevaPublicacion() {
       const createdPost = await response.json();
 
       // Enviar las imágenes al backend
-      for (const url of imagenes) {
+      for (const url of imagenesValidas) {
         const imgRes = await fetch(postPublicacionImagenes, {
           method : "POST",
           headers: {
@@ -93,9 +101,7 @@ function CrearNuevaPublicacion() {
           throw new Error("Error al subir la imagen: " + url);
         }
       }
-      form.reset();
-      setDescripcion("");
-      setMensaje("Publicación creada exitosamente.");
+      navigate(`/perfil/${usuario.id}`);
     } catch (error) {
       console.error("Error al crear la publicación:", error);
       setError(error instanceof Error ? error.message : "Error al crear la publicación");
@@ -106,9 +112,12 @@ function CrearNuevaPublicacion() {
   };
 
   return (
-    <div className="card mt-3 mb-4" shadow-sm>
+    <div className="card mt-3 mb-4 shadow sm">
       <div className="card-body">
-        <h5 className="card-title fw-bold mb-3">Crear Nueva Publicación</h5>
+        <h5 className="card-title fw-bold mb-3">
+          Crear Nueva Publicación
+        </h5>
+
         {mensaje && <p style={{ color: "green" }}>{mensaje}</p>}
         {error && <p style={{ color: "red" }}>{error}</p>}
         <form onSubmit={handleSubmit}>
@@ -116,52 +125,60 @@ function CrearNuevaPublicacion() {
             <label htmlFor="descripcion" className="form-label fw-bold">
               Descripción:
             </label>
-            <textarea id="descripcion" 
-              className="form-control" 
-              rows={3} 
-              placeholder="¿Qué querés compartir?" 
+            <textarea 
+              id="descripcion" 
+              className="form-control"
+              rows={3}
+              placeholder="¿Qué estás pensando?"
               value={descripcion} 
               onChange={(e) => setDescripcion(e.target.value)} 
               required 
             />
           </div>
+
           <div className="mb-3">
-            <label htmlFor="tags" className="form-label fw-bold">
-              Tags (separados por comas):
+            <p>Etiquetas:</p>
+            {etiquetas.map((tag) => (
+              <div className="form-check form-check-inline" key={tag.id}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id={`tag-${tag.id}`}
+                  checked={tagsSeleccionados.includes(tag.id)}
+                  onChange={() =>
+                    setTagSeleccionados((prev) =>
+                      prev.includes(tag.id)
+                        ? prev.filter((id) => id !== tag.id) // si ya estaba, la saco
+                        : [...prev, tag.id] // si no estaba, la agrego
+                    )
+                  }
+                />
+                <label className="form-check-label" htmlFor={`tag-${tag.id}`}>
+                  #{tag.name}
+                </label>
+              </div>
+            ))}
+          </div>
+          <div className="mb-3">
+            <label className="form-label fw-bold d-block">
+             🖼️ Imágenes (opcional):
             </label>
-            <div className="input-group">
-              <span className="input-group-text">
-                🏷️
-              </span>
-              <input 
-                type="text" 
-                id="tags" 
-                name="tags" 
-                className="form-control" 
-                placeholder="Ingresá tus tags separados por comas" 
+            {imagenes.map((url, posicion) => (
+              <input
+                key={posicion}
+                type="url"
+                className="form-control mb-2"
+                placeholder="https://..."
+                value={url}
+                onChange={(e) => cambiarImagen(posicion, e.target.value)}
               />
-            </div>
+            ))}
+            <button type="button" className="btn btn-outline-secondary btn-sm" onClick={agregarImagen}>
+              + Agregar otra imagen
+            </button>
           </div>
 
-          <div className="mb-3">
-            <label htmlFor="imagenes" className="form-label fw-bold">
-              Imágenes (URLs separadas por comas):
-            </label>
-          </div>
-          <div className="input-group">
-            <span className="input-group-text">
-              🖼️
-            </span>
-            <input 
-              type="text" 
-              id="imagenes" 
-              name="imagenes" 
-              className="form-control"
-              placeholder="Ingresá las URLs de las imágenes separadas por comas" 
-            />
-          </div>
-
-          <div className="d-flex justify-content-end">
+          <div className="d-flex justify-content-end border-top pt-3">
             <button type="submit" className="btn btn-primary" disabled={enviado}>
               {enviado ? "Creando..." : "Crear Publicación"}
             </button>

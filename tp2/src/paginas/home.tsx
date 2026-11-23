@@ -2,7 +2,6 @@ import { useEffect, useState, useContext } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import type { Post } from '../types/Post'
 import { UsuarioContext } from '../contextos/UsuarioContext';
-import CrearNuevaPublicacion from './crearNuevaPublicacion';
 
 function Home() {
   
@@ -14,7 +13,6 @@ function Home() {
   const [publicaciones, setPublicaciones] = useState<Post[]>([])
   const [cargando, setCargando] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
-  const [mostrarFormulario, setMostrarFormulario] = useState<boolean>(false)
   const [searchParams, setSearchParams] = useSearchParams()
   const filtroTag = searchParams.get('tag') ?? ''
 
@@ -150,21 +148,9 @@ function Home() {
             ¿Qué estás pensando {usuarioLogeado?.usuario?.nickName}?
           </p>
 
-          <button
-            className="btn btn-primary"
-            onClick={() => setMostrarFormulario(!mostrarFormulario)}
-          >
-            {/* Cuando el botón está en "crear publicacion", 
-            al hacer click cambia a "cancelar" y viceversa */}
-            {mostrarFormulario ? "Cancelar" : "Crear publicación"}
-          </button>
-
-          {mostrarFormulario && (
-            <div className="mt-4">
-              <CrearNuevaPublicacion />
-            </div>
-          )}
-
+        <Link to="/crear-publicacion" className="btn btn-outline-primary">
+          Crear nueva publicación
+        </Link>
         </div>
       </div>
 
@@ -264,7 +250,7 @@ function Home() {
                     <span className="text-muted">
                       💬 {publicacion.Comments?.length || 0} comentarios
                     </span>
-                    <Link to={`/detalle/${publicacion.id}`} className='btn btn-primary btn-sm'>
+                    <Link to={`/post/${publicacion.id}`} className='btn btn-primary btn-sm'>
                       Ver más
                     </Link>
                   </div>

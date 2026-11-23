@@ -103,7 +103,7 @@ function PerfilDeUsuario() {
         {/* Cantidad de comentarios visibles del post */}
         <p>💬 {publicacion.Comments?.length || 0} comentarios</p>
         <div>
-          <Link to={`/detalle/${publicacion.id}`} className="btn btn-primary btn-sm">
+          <Link to={`/post/${publicacion.id}`} className="btn btn-primary btn-sm">
             Ver Más
           </Link>
         </div>
