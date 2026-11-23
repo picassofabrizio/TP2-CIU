@@ -39,30 +39,30 @@ function Home() {
       const datos: Post[] = await respuesta.json()
       
       //Consultamos los comentarios visibles de cada publicación al endpoint
-      const publicacionesConComentarios = await Promise.all(
-        datos.map(async (post) => {
+          const publicacionesConComentarios = await Promise.all(
+        datos.map(async (publicacion) => {
           try{
-            const resComentarios = await fetch(`http://localhost:3001/comments/post/${post.id}`)
-            const comentarios = resComentarios.ok
-              ? await resComentarios.json()
-              :[]
-            
-              // Devolvemos el post original agregándole la propiedad Comments con los datos
-              return{
-                ...post,
-                Comments: comentarios,
-              }
+            const resComentarios = await fetch(`http://localhost:3001/comments/post/${publicacion.id}`)
+            const comentarios = resComentarios.ok ? await resComentarios.json() : []
+
+            //Consultamos también las imágenes de cada publicación (GET /posts no las trae)
+            const resImagenes = await fetch(`http://localhost:3001/postimages/post/${publicacion.id}`)
+            const imagenes = resImagenes.ok ? await resImagenes.json() : []
+
+            return { ...publicacion, Comments: comentarios, Imagenes: imagenes }
           } catch{
-            return {
-              ...post,
-              Comments: [],
-            }
+            return { ...publicacion, Comments: [], Imagenes: [] }
           }
         })
       )
 
+      // Ordenamos de la más nueva a la más vieja
+      publicacionesConComentarios.sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+
       // Guardamos en el estado las publicaciones completas
-      setPublicaciones(publicacionesConComentarios)
+      setPublicaciones(publicacionesConComentarios)  
     } catch(error){
       console.error("Error al obtener las publicaciones:", error)
       setError('No se pudieron cargar las publicaciones.')
