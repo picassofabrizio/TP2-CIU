@@ -3,11 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { UsuarioContext } from "../contextos/UsuarioContext.tsx";
 import type { Usuario } from "../types/Usuario";
+const FORMATO_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function RegistroDeUsuario() {
   const [nickName, setNickName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  //* Errores de validación de cada campo
+  const [errorNickName, setErrorNickName] = useState<string | null>(null);
+  const [errorEmail, setErrorEmail] = useState<string | null>(null);
+
 
   //* Indica si el registro está procesándose
   const [cargando, setCargando] = useState(false);
@@ -28,6 +34,24 @@ function RegistroDeUsuario() {
   const contexto = useContext(UsuarioContext);
 
   async function registrarUsuario() {
+    //* Validamos los campos obligatorios antes de enviar
+    let hayErrores = false;
+
+    if (!nickName.trim()) {
+      setErrorNickName("El nombre de usuario es obligatorio.");
+      hayErrores = true;
+    }
+
+    if (!email.trim()) {
+      setErrorEmail("El correo es obligatorio.");
+      hayErrores = true;
+    } else if (!FORMATO_EMAIL.test(email.trim())) {
+      setErrorEmail("Ingresá un correo válido (ej: nombre@mail.com).");
+      hayErrores = true;
+    }
+
+    //* Si falta algo, no enviamos nada al backend
+    if (hayErrores) return;
     //* Activamos el indicador de carga
     setCargando(true);
 
@@ -126,6 +150,7 @@ function RegistroDeUsuario() {
       <h2 className="mb-4">Crear cuenta</h2>
 
       <form
+        noValidate
         onSubmit={(e) => {
           e.preventDefault();
           registrarUsuario();
@@ -136,15 +161,19 @@ function RegistroDeUsuario() {
             Nombre de usuario
           </label>
 
-          <input
+                    <input
             type="text"
             id="nickname"
             name="nickname"
-            className="form-control"
+            className={`form-control ${errorNickName ? "is-invalid" : ""}`}
             value={nickName}
-            onChange={(e) => setNickName(e.target.value)}
+            onChange={(e) => {
+              setNickName(e.target.value);
+              setErrorNickName(null); // al escribir, se borra el error
+            }}
             required
           />
+          <div className="invalid-feedback">{errorNickName}</div>
         </div>
 
         <div className="mb-3 text-start">
@@ -152,15 +181,19 @@ function RegistroDeUsuario() {
             Correo electrónico
           </label>
 
-          <input
+                    <input
             type="email"
             id="email"
             name="email"
-            className="form-control"
+            className={`form-control ${errorEmail ? "is-invalid" : ""}`}
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setErrorEmail(null); // al escribir, se borra el error
+            }}
             required
           />
+          <div className="invalid-feedback">{errorEmail}</div>
         </div>
 
         <div className="mb-4 text-start">
