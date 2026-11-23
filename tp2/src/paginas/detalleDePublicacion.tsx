@@ -97,7 +97,7 @@ function DetalleDePublicacion() {
             <img 
               src={imagen.url} 
               alt={`Imagen ${imagen.id}`}
-              className="img-fluid rounded mb-2 d-block"
+              className="img-fluid rounded mb-2 d-block w-100" 
               style={{ maxHeight: "450px", objectFit: "cover" }}  
             />
           </li>
@@ -177,7 +177,7 @@ function DetalleDePublicacion() {
   }
 
   return (
-    <div className="container mt-4 mb-5">
+    <div className="container mt-4 mb-5" style={{ maxWidth: "700px" }}>
       <nav className="navbar navbar-light bg-light px-3 mb-4 rounded shadow-sm">
         
         {/* El logo es un botón que lleva al home */}
@@ -243,7 +243,7 @@ function DetalleDePublicacion() {
               {publicacion?.Tags && publicacion.Tags.length > 0 && (
                 <div className="mb-3">
                   {publicacion.Tags.map((tag) => (
-                    <span key={tag.id} className="badge bg-secondary me-1">
+                    <span key={tag.id} className="badge rounded-pill bg-secondary me-1">
                       #{tag.name}
                     </span>
                   ))}
@@ -300,7 +300,7 @@ function DetalleDePublicacion() {
                         />
                       </div>
                       {/* Mensaje de error en rojo (vacío, sin sesión o error del servidor) */}
-                      {errorComentario && <p style={{ color: "red" }}>{errorComentario}</p>}
+                      {errorComentario && <div className="alert alert-danger py-2">{errorComentario}</div>}
                       <button type="submit" className="btn btn-primary" disabled={enviando}>
                         {enviando ? "Enviando..." : "Agregar Comentario"}
                       </button>

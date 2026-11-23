@@ -113,7 +113,7 @@ function CrearNuevaPublicacion() {
   };
 
   return (
-    <div className="card mt-3 mb-4 shadow sm">
+    <div className="card mt-3 mb-4 shadow-sm mx-auto" style={{ maxWidth: "700px" }}>
       <div className="card-body">
         <div className="mb-3">
           <Link to="/home" className="btn btn-outline-secondary btn-sm">
@@ -125,7 +125,7 @@ function CrearNuevaPublicacion() {
           </h5>
 
         {mensaje && <p style={{ color: "green" }}>{mensaje}</p>}
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <div className="alert alert-danger py-2">{error}</div>}
           <form onSubmit={handleSubmit} noValidate>
           <div className="mb-3">
             <label htmlFor="descripcion" className="form-label fw-bold">

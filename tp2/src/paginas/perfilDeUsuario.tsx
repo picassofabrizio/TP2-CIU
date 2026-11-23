@@ -127,7 +127,7 @@ function PerfilDeUsuario() {
 
 
   return (
-    <div className="container mt-4 text-start">
+    <div className="container mt-4 text-start" style={{ maxWidth: "700px" }}>
       <div className="mb-3">
         <Link to="/home" className="btn btn-outline-secondary btn-sm">
           ← Volver al inicio

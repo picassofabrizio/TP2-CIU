@@ -85,7 +85,7 @@ function Home() {
   })
 
   return (
-    <div className='container mt-4'>
+      <div className='container mt-4' style={{ maxWidth: '700px' }}>
 
       {/* Barra de navegación */}
       <nav className="navbar navbar-light bg-light px-3 mb-4 rounded shadow-sm">
@@ -218,7 +218,7 @@ function Home() {
                       {publicacion.Tags.map((tag) => (
                         <span
                           key={tag.id}
-                          className="badge bg-secondary me-1"
+                          className="badge rounded-pill bg-secondary me-1"
                           style={{cursor: "pointer"}}
                           onClick={() => setSearchParams({ tag: tag.name })}
                         >
@@ -238,7 +238,7 @@ function Home() {
                         <img
                           key={imagen.id}
                           src={imagen.url}
-                          className="img-fluid rounded mb-2"
+                          className="img-fluid rounded mb-2 w-100"
                           alt="Imagen de la publicación"
                           style={{ maxHeight: '400px', objectFit: 'cover' }}
                         />

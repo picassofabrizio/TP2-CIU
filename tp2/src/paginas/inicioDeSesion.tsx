@@ -19,6 +19,9 @@ function InicioDeSesion() {
 
   const [password, setPassword] = useState("");
 
+  //* Error de validación del nombre de usuario
+  const [errorNickName, setErrorNickName] = useState<string | null>(null);
+
   const API_URL = "http://localhost:3001";
 
   //* Accedemos al contexto del usuario
@@ -27,7 +30,13 @@ function InicioDeSesion() {
   const [mensajeError, setMensajeError] = useState("");
 
   async function obtenerUsuarios() {
-    //* Activamos el indicador dae carga
+  //* Si el nombre de usuario está vacío, no enviamos nada al backend
+  if (!nickName.trim()) {
+    setErrorNickName("El nombre de usuario es obligatorio.");
+    return;
+  }
+
+    //* Activamos el indicador de carga
     setCargando(true);
 
     //* Reiniciamos el mensaje de verificación
@@ -99,25 +108,29 @@ function InicioDeSesion() {
       <h2 className="mb-4">Iniciar sesión</h2>
 
       <form
+        noValidate
         onSubmit={(e) => {
           e.preventDefault();
           obtenerUsuarios();
         }}
       >
-        <div className="mb-3 text-start">
-          <label htmlFor="username" className="form-label">
-            Nombre de usuario
-          </label>
-
-          <input
-            type="text"
-            id="username"
-            name="username"
-            className="form-control"
-            value={nickName}
-            onChange={(e) => setNickName(e.target.value)}
-            required
-          />
+      <div className="mb-3 text-start">
+        <label htmlFor="username" className="form-label">
+          Nombre de usuario
+        </label>
+                <input
+          type="text"
+          id="username"
+          name="username"
+          className={`form-control ${errorNickName ? "is-invalid" : ""}`}
+          value={nickName}
+          onChange={(e) => {
+            setNickName(e.target.value);
+            setErrorNickName(null); // al escribir, se borra el error
+          }}
+          required
+        />
+        <div className="invalid-feedback">{errorNickName}</div>
         </div>
 
         <div className="mb-4 text-start">
