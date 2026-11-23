@@ -1,13 +1,35 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UsuarioContext } from "../contextos/UsuarioContext";
-import type {Post} from "../types/Post";
+import type { Tag } from "../types/Tag";
 
 function CrearNuevaPublicacion() {
 
   const authContext = useContext(UsuarioContext);
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [descripcion, setDescripcion] = useState<string>("");
+  const [etiquetas, setEtiquetas] = useState<Tag[]>([]);
+  const [tagsSeleccionados, setTagSeleccionados] = useState<number[]>([]);
+  const [imagenes, setImagenes] = useState<string[]>([""]);
   const [enviado, setEnviado] = useState<boolean>(false);
+
+  useEffect(() => {
+    const obtenerEtiquetas = async () => {
+      try {
+        const respuesta = await fetch("http://localhost:3001/tags");
+        if (!respuesta.ok) {
+          throw new Error("No se pudieron cargar las etiquetas");
+        }
+        const datos: Tag[] = await respuesta.json();
+        setEtiquetas(datos);
+      } catch(error){
+        console.error("Error al obtener las etiquetas:", error);
+        setError("No se pudieron cargar las etiquetas.");
+      }
+    };
+
+    obtenerEtiquetas();
+  }, []);
 
   const postPublicacion = "http://localhost:3001/posts/";
 
@@ -28,25 +50,19 @@ function CrearNuevaPublicacion() {
     const form = event.currentTarget;
     const formData = new FormData(form);
     
-    const descripcion = ((formData.get("descripcion") as string) || "").trim();
-
-    const tags = ((formData.get("tags") as string) || "").split(",").map(tag => tag.trim()).filter(Boolean);
     const imagenes = ((formData.get("imagenes") as string) || "").split(",").map(url => url.trim()).filter(Boolean);
 
-    if (!descripcion) {
+    if (!descripcion.trim()) {
       setError("La descripción es obligatoria.");
       setEnviado(false);
       return;
     }
 
 
-    const postData: Post = {
-      id: 0, // El ID se asignará automáticamente en el backend
-      description: descripcion,
-      UserId: Number(usuario.id), // Reemplaza con el ID del usuario actual
-      createdAt: new Date().toISOString(),
-      Tags: tags.map(tag => ({ id: 0, name: tag })), // Reemplaza con la estructura correcta de Tag
-      Imagenes: imagenes.map((url) => ({ id: 0, url, PostId: 0 })) // Reemplaza con la estructura correcta de PostImagen
+    const postData = {
+      description: descripcion.trim(),
+      userId: usuario.id,
+      tagIds: [] as number [],
     };
 
     try {
@@ -64,20 +80,21 @@ function CrearNuevaPublicacion() {
       const createdPost = await response.json();
 
       // Enviar las imágenes al backend
-      const imagenData = (postData.Imagenes ?? []).map((img) => ({ ...img, PostId: createdPost.id }));
-      for (const img of imagenData) {
+      for (const url of imagenes) {
         const imgRes = await fetch(postPublicacionImagenes, {
-          method: "POST",
+          method : "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(img),
+          // El backend espera url y postId
+          body: JSON.stringify({ url, postId: createdPost.id }),
         });
-        if(!imgRes.ok) {
-          throw new Error("Error al subir la imagen: " + img.url);
+        if (!imgRes.ok) {
+          throw new Error("Error al subir la imagen: " + url);
         }
       }
       form.reset();
+      setDescripcion("");
       setMensaje("Publicación creada exitosamente.");
     } catch (error) {
       console.error("Error al crear la publicación:", error);
@@ -96,7 +113,7 @@ function CrearNuevaPublicacion() {
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="descripcion">Descripción:</label>
-          <input type="text" id="descripcion" name="descripcion" required />
+          <input type="text" id="descripcion" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} required />
         </div>
         <div>
           <label htmlFor="tags">Tags (separados por comas):</label>
