@@ -88,7 +88,7 @@ function DetalleDePublicacion() {
   //* Muestra las imágenes del post, o un aviso si no hay ninguna
   function renderImagenes() {
     if (imagenes.length === 0) {
-      return <li>No hay imágenes disponibles</li>;
+      return <p>No hay imágenes disponibles</p>;
     }
     return(
       <ul className="list-unstyled d-flex flex-wrap gap-2 mb-3"> 
@@ -169,7 +169,7 @@ function DetalleDePublicacion() {
 
   //* Estos chequeos van acá (antes del return), no dentro de crearComentario
   if (cargando) {
-    return <p>Cargando publicacion...</p>;
+    return <p>Cargando publicación...</p>;
   }
 
   if (!publicacion) {
@@ -221,7 +221,7 @@ function DetalleDePublicacion() {
         </div>
         ) : !publicacion ? (
           <div className="alert alert-warning" role="alert">
-            No se encontró la publicación solicitad.
+            No se encontró la publicación solicitada.
           </div>
         ) : (
           <>
