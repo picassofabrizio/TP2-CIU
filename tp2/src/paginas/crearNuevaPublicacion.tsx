@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { UsuarioContext } from "../contextos/UsuarioContext";
 import type { Tag } from "../types/Tag";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function CrearNuevaPublicacion() {
 
@@ -114,9 +114,14 @@ function CrearNuevaPublicacion() {
   return (
     <div className="card mt-3 mb-4 shadow sm">
       <div className="card-body">
-        <h5 className="card-title fw-bold mb-3">
-          Crear Nueva Publicación
-        </h5>
+        <div className="mb-3">
+          <Link to="/home" className="btn btn-outline-secondary btn-sm">
+            ← Volver al inicio
+          </Link>
+        </div>
+          <h5 className="card-title fw-bold mb-3">
+            Crear Nueva Publicación
+          </h5>
 
         {mensaje && <p style={{ color: "green" }}>{mensaje}</p>}
         {error && <p style={{ color: "red" }}>{error}</p>}

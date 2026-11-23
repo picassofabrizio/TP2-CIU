@@ -128,6 +128,11 @@ function PerfilDeUsuario() {
 
   return (
     <div className="container mt-4 text-start">
+      <div className="mb-3">
+        <Link to="/home" className="btn btn-outline-secondary btn-sm">
+          ← Volver al inicio
+        </Link>
+      </div>
       <div className="card shadow-sm mb-4">
         <div className="card-body d-flex justify-content-between align-items-center">
           <div>
