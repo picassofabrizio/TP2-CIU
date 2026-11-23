@@ -9,6 +9,7 @@ function CrearNuevaPublicacion() {
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [descripcion, setDescripcion] = useState<string>("");
+  const [errorDescripcion, setErrorDescripcion] = useState<string | null>(null);
   const [etiquetas, setEtiquetas] = useState<Tag[]>([]);
   const [tagsSeleccionados, setTagSeleccionados] = useState<number[]>([]);
   const navigate = useNavigate();
@@ -61,7 +62,7 @@ function CrearNuevaPublicacion() {
 
     const imagenesValidas = imagenes.map((url) => url.trim()).filter((url): url is string => url !== "");
     if (!descripcion.trim()) {
-      setError("La descripción es obligatoria.");
+      setErrorDescripcion("La descripción es obligatoria.");
       setEnviado(false);
       return;
     }
@@ -125,20 +126,25 @@ function CrearNuevaPublicacion() {
 
         {mensaje && <p style={{ color: "green" }}>{mensaje}</p>}
         {error && <p style={{ color: "red" }}>{error}</p>}
-        <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
           <div className="mb-3">
             <label htmlFor="descripcion" className="form-label fw-bold">
               Descripción:
             </label>
-            <textarea 
-              id="descripcion" 
-              className="form-control"
+                        <textarea
+              id="descripcion"
+              className={`form-control ${errorDescripcion ? "is-invalid" : ""}`}
               rows={3}
               placeholder="¿Qué estás pensando?"
-              value={descripcion} 
-              onChange={(e) => setDescripcion(e.target.value)} 
-              required 
+              value={descripcion}
+              onChange={(e) => {
+                setDescripcion(e.target.value);
+                setErrorDescripcion(null); 
+              }}
+              required
             />
+            
+            <div className="invalid-feedback">{errorDescripcion}</div>
           </div>
 
           <div className="mb-3">
