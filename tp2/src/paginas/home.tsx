@@ -2,10 +2,13 @@ import { useEffect, useState, useContext } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import type { Post } from "../types/Post";
 import { UsuarioContext } from "../contextos/UsuarioContext";
+import { TemaContext } from "../contextos/TemaContext";
 
 function Home() {
   //Traemos el usuario logeado de inicioDeSesion.tsx
   const usuarioLogeado = useContext(UsuarioContext);
+  // Obtenemos el tema actual y la función para cambiarlo.
+  const contextoTema = useContext(TemaContext);
   const navigate = useNavigate();
 
   //Estados para datos, carga y errores
@@ -15,6 +18,32 @@ function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
   const filtroTag = searchParams.get("tag") ?? "";
   const [mostrarAvisoSesion, setMostrarAvisoSesion] = useState<boolean>(false);
+  //* Estado que guarda qué imagen se está mostrando en cada publicación.
+  // Usamos el ID de la publicación para identificar su carrusel.
+  const [indicesImagenes, setIndicesImagenes] = useState<
+    Record<number, number>
+  >({});
+
+  //* Función para avanzar a la siguiente imagen de una publicación.
+  function siguienteImagen(publicacionId: number, totalImagenes: number) {
+    setIndicesImagenes((indicesActuales) => ({
+      ...indicesActuales,
+      // Si llegamos a la última imagen, volvemos a la primera.
+      [publicacionId]:
+        ((indicesActuales[publicacionId] ?? 0) + 1) % totalImagenes,
+    }));
+  }
+
+  //* Función para retroceder a la imagen anterior de una publicación.
+  function imagenAnterior(publicacionId: number, totalImagenes: number) {
+    setIndicesImagenes((indicesActuales) => ({
+      ...indicesActuales,
+      // Si estamos en la primera imagen, volvemos a la última.
+      [publicacionId]:
+        ((indicesActuales[publicacionId] ?? 0) - 1 + totalImagenes) %
+        totalImagenes,
+    }));
+  }
 
   //Función para cerrar sesión
   function cerrarSesion() {
@@ -100,6 +129,24 @@ function Home() {
       {/* Barra de navegación */}
       <nav className="navbar navbar-light bg-light px-3 mb-4 rounded shadow-sm">
         <span className="navbar-brand fw-bold">Anti-Social Net</span>
+        {/* Botón para alternar entre modo oscuro y claro */}
+        <button
+          type="button"
+          className="btn btn-outline-primary me-2"
+          onClick={contextoTema?.cambiarTema}
+          aria-label={
+            contextoTema?.tema === "oscuro"
+              ? "Activar modo claro"
+              : "Activar modo oscuro"
+          }
+          title={
+            contextoTema?.tema === "oscuro"
+              ? "Activar modo claro"
+              : "Activar modo oscuro"
+          }
+        >
+          {contextoTema?.tema === "oscuro" ? "☀️" : "🌙"}
+        </button>
 
         {/* Si hay un usuario logeado, se muestra el botón con su nickname 
         y las opciones para ir al perfil y cerrar sesión */}
@@ -132,10 +179,16 @@ function Home() {
             </ul>
           </div>
         ) : (
-          // Si no hay usuario logeado, se muestra el botón de inicio de sesión
-          <Link to="/" className="btn btn-primary">
-            Iniciar sesión
-          </Link>
+          // Si no hay usuario logeado, mostramos las opciones de acceso.
+          <div className="d-flex gap-2">
+            <Link to="/?vista=login" className="btn btn-primary">
+              Iniciar sesión
+            </Link>
+
+            <Link to="/?vista=registro" className="btn btn-outline-primary">
+              Registrarme
+            </Link>
+          </div>
         )}
       </nav>
 
@@ -177,7 +230,8 @@ function Home() {
               {mostrarAvisoSesion && (
                 <div className="alert alert-warning mt-3 mb-0">
                   <strong>
-                    ¡Debés iniciar sesión o registrate para crear una publicación!
+                    ¡Debés iniciar sesión o registrate para crear una
+                    publicación!
                   </strong>
                   <div className="mt-2">
                     <Link
@@ -249,18 +303,67 @@ function Home() {
                   </div>
                 )}
 
-                {/* Comprueba si la publicación tiene imágenes, si tiene las muestra */}
-                {publicacion.Imagenes && (
-                  <div className="mb-3">
-                    {publicacion.Imagenes.map((imagen) => (
-                      <img
-                        key={imagen.id}
-                        src={imagen.url}
-                        className="img-fluid rounded mb-2 w-100"
-                        alt="Imagen de la publicación"
-                        style={{ maxHeight: "400px", objectFit: "cover" }}
-                      />
-                    ))}
+                {/* Comprueba si la publicación tiene imágenes para mostrar */}
+                {(publicacion.Imagenes ?? []).length > 0 && (
+                  <div className="mb-3 position-relative">
+                    {/* Guardamos las imágenes para evitar errores si Imagenes es undefined */}
+                    {(() => {
+                      const imagenes = publicacion.Imagenes ?? [];
+
+                      // Obtenemos el índice de la imagen actual de esta publicación.
+                      const indiceActual = indicesImagenes[publicacion.id] ?? 0;
+                      const imagenActual = imagenes[indiceActual];
+
+                      return (
+                        <>
+                          {/* Mostramos solamente la imagen seleccionada */}
+                          <img
+                            src={imagenActual.url}
+                            className="img-fluid rounded w-100"
+                            alt="Imagen de la publicación"
+                            style={{ maxHeight: "400px", objectFit: "cover" }}
+                          />
+
+                          {/* Mostramos las flechas solamente si hay más de una imagen */}
+                          {imagenes.length > 1 && (
+                            <>
+                              {/* Flecha para retroceder */}
+                              <button
+                                className="btn btn-dark position-absolute top-50 start-0 translate-middle-y ms-2 rounded-circle"
+                                onClick={() =>
+                                  imagenAnterior(
+                                    publicacion.id,
+                                    imagenes.length,
+                                  )
+                                }
+                                aria-label="Imagen anterior"
+                              >
+                                ❮
+                              </button>
+
+                              {/* Flecha para avanzar */}
+                              <button
+                                className="btn btn-dark position-absolute top-50 end-0 translate-middle-y me-2 rounded-circle"
+                                onClick={() =>
+                                  siguienteImagen(
+                                    publicacion.id,
+                                    imagenes.length,
+                                  )
+                                }
+                                aria-label="Imagen siguiente"
+                              >
+                                ❯
+                              </button>
+
+                              {/* Indicador de la imagen actual */}
+                              <span className="badge bg-dark position-absolute bottom-0 end-0 m-2">
+                                {indiceActual + 1} / {imagenes.length}
+                              </span>
+                            </>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
                 )}
 

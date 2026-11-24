@@ -1,18 +1,38 @@
-import { useState} from "react";
+import { useState, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import InicioDeSesion from "./inicioDeSesion";
 import RegistroDeUsuario from "./registroDeUsuario";
+import { TemaContext } from "../contextos/TemaContext";
 
 function PantallaInicial() {
+  // Obtenemos el tema actual y la función para cambiarlo.
+  const contextoTema = useContext(TemaContext);
   //* Controla qué contenido se muestra en la card
   const [searchParams] = useSearchParams();
 
   const vistaInicial = searchParams.get("vista") || "inicio";
 
   const [vista, setVista] = useState(vistaInicial);
-
   return (
-    <div className="container d-flex justify-content-center align-items-center min-vh-100">
+    <div className="container d-flex justify-content-center align-items-center min-vh-100 position-relative">
+      {/* Botón para alternar entre modo oscuro y claro */}
+      <button
+        type="button"
+        className="btn btn-outline-primary position-absolute top-0 end-0 m-3"
+        onClick={contextoTema?.cambiarTema}
+        aria-label={
+          contextoTema?.tema === "oscuro"
+            ? "Activar modo claro"
+            : "Activar modo oscuro"
+        }
+        title={
+          contextoTema?.tema === "oscuro"
+            ? "Activar modo claro"
+            : "Activar modo oscuro"
+        }
+      >
+        {contextoTema?.tema === "oscuro" ? "☀️" : "🌙"}
+      </button>
       <div
         className="card shadow p-4 text-center"
         style={{ width: "100%", maxWidth: "450px" }}
@@ -44,7 +64,7 @@ function PantallaInicial() {
               className="btn btn-outline-primary"
               onClick={() => setVista("registro")}
             >
-              Crear cuenta
+              Registrarse
             </button>
           </>
         )}

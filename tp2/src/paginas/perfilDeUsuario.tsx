@@ -2,7 +2,8 @@ import { useState, useEffect, useContext } from "react";
 import type { Usuario } from "../types/Usuario";
 import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
 import { UsuarioContext } from "../contextos/UsuarioContext";
-import type { Post } from "../types/Post"
+import { TemaContext } from "../contextos/TemaContext";
+import type { Post } from "../types/Post";
 
 function PerfilDeUsuario() {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ function PerfilDeUsuario() {
   //* Usuario logueado
   const contexto = useContext(UsuarioContext);
   const usuarioLogueado = contexto?.usuario;
+  const contextoTema = useContext(TemaContext);
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [publicaciones, setPublicaciones] = useState<Post[]>([]);
   const [cargando, setCargando] = useState<boolean>(true);
@@ -49,15 +51,17 @@ function PerfilDeUsuario() {
           postsData.map(async (post) => {
             try {
               const resComentarios = await fetch(
-                `http://localhost:3001/comments/post/${post.id}`
+                `http://localhost:3001/comments/post/${post.id}`,
               );
-              const comentarios = resComentarios.ok ? await resComentarios.json() : [];
+              const comentarios = resComentarios.ok
+                ? await resComentarios.json()
+                : [];
               //* Devolvemos el post original agregándole la propiedad Comments
               return { ...post, Comments: comentarios };
             } catch {
               return { ...post, Comments: [] };
             }
-          })
+          }),
         );
 
         if (!cancelado) {
@@ -66,7 +70,11 @@ function PerfilDeUsuario() {
         }
       } catch (error) {
         if (!cancelado) {
-          setError(error instanceof Error ? error.message : "Error al cargar el perfil.");
+          setError(
+            error instanceof Error
+              ? error.message
+              : "Error al cargar el perfil.",
+          );
           setUsuario(null);
         }
       } finally {
@@ -103,7 +111,10 @@ function PerfilDeUsuario() {
         {/* Cantidad de comentarios visibles del post */}
         <p>💬 {publicacion.Comments?.length || 0} comentarios</p>
         <div>
-          <Link to={`/post/${publicacion.id}`} className="btn btn-primary btn-sm">
+          <Link
+            to={`/post/${publicacion.id}`}
+            className="btn btn-primary btn-sm"
+          >
             Ver Más
           </Link>
         </div>
@@ -123,23 +134,47 @@ function PerfilDeUsuario() {
 
   if (error || !usuario) {
     return <p>{error || "Usuario no encontrado."}</p>;
-  };
-
+  }
 
   return (
     <div className="container mt-4 text-start" style={{ maxWidth: "700px" }}>
-      <div className="mb-3">
+      <div className="mb-3 d-flex align-items-center gap-2">
+        {/* Botón para volver al Home */}
         <Link to="/home" className="btn btn-outline-secondary btn-sm">
           ← Volver al inicio
         </Link>
+
+        {/* Botón para alternar entre modo oscuro y claro */}
+        <button
+          type="button"
+          className="btn btn-outline-primary btn-sm"
+          onClick={contextoTema?.cambiarTema}
+          aria-label={
+            contextoTema?.tema === "oscuro"
+              ? "Activar modo claro"
+              : "Activar modo oscuro"
+          }
+          title={
+            contextoTema?.tema === "oscuro"
+              ? "Activar modo claro"
+              : "Activar modo oscuro"
+          }
+        >
+          {contextoTema?.tema === "oscuro" ? "☀️" : "🌙"}
+        </button>
       </div>
       <div className="card shadow-sm mb-4">
         <div className="card-body d-flex justify-content-between align-items-center">
           <div>
             <h1 className="h3 mb-1">👤 {usuario.nickName}</h1>
-            {usuario.email && <p className="text-muted mb-0">{usuario.email}</p>}
+            {usuario.email && (
+              <p className="text-muted mb-0">{usuario.email}</p>
+            )}
           </div>
-          <button className="btn btn-outline-danger btn-sm" onClick={cerrarSesion}>
+          <button
+            className="btn btn-outline-danger btn-sm"
+            onClick={cerrarSesion}
+          >
             Cerrar sesión
           </button>
         </div>
