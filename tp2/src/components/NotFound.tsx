@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 function NotFound() {
   return (
     <div className="container text-center mt-5">
@@ -8,9 +10,9 @@ function NotFound() {
         La página que estás buscando no existe.
       </p>
 
-      <a href="/" className="btn btn-primary">
+      <Link to="/" className="btn btn-primary">
         Volver al inicio
-      </a>
+      </Link>
     </div>
   )
 }

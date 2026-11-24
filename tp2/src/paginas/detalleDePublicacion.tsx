@@ -8,7 +8,7 @@ import { UsuarioContext } from "../contextos/UsuarioContext";
 import { TemaContext } from "../contextos/TemaContext";
 
 function DetalleDePublicacion() {
-  //* Leemos el :id de la URL (/detalle/:id)
+  //* Leemos el :id de la URL (/post/:id)
   const { id } = useParams<{ id: string }>();
 
   //* Usuario logueado (para saber quién comenta)

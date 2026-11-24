@@ -8,7 +8,7 @@ function CrearNuevaPublicacion() {
   const authContext = useContext(UsuarioContext);
   // Obtenemos el tema actual y la función para cambiarlo.
   const contextoTema = useContext(TemaContext);
-  const [mensaje, setMensaje] = useState<string | null>(null);
+
   const [error, setError] = useState<string | null>(null);
   const [descripcion, setDescripcion] = useState<string>("");
   const [errorDescripcion, setErrorDescripcion] = useState<string | null>(null);
@@ -58,11 +58,8 @@ function CrearNuevaPublicacion() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    setMensaje(null);
     setError(null);
     setEnviado(true);
-
     // Limpiamos las URLs y descartamos los campos vacíos.
     const imagenesValidas = imagenes
       .map((url) => url.trim())
@@ -158,7 +155,6 @@ function CrearNuevaPublicacion() {
         </div>
         <h5 className="card-title fw-bold mb-3">Crear Nueva Publicación</h5>
 
-        {mensaje && <p style={{ color: "green" }}>{mensaje}</p>}
         {error && <div className="alert alert-danger py-2">{error}</div>}
         <form onSubmit={handleSubmit} noValidate>
           <div className="mb-3">

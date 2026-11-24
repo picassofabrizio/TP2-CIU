@@ -127,8 +127,9 @@ function Home() {
   return (
     <div className="container mt-4" style={{ maxWidth: "700px" }}>
       {/* Barra de navegación */}
-      <nav className="navbar navbar-light bg-light px-3 mb-4 rounded shadow-sm">
+      <nav className="navbar navbar-light bg-light px-3 mb-4 rounded shadow-sm sticky-top">
         <span className="navbar-brand fw-bold">Anti-Social Net</span>
+
         {/* Botón para alternar entre modo oscuro y claro */}
         <button
           type="button"
