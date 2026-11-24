@@ -29,7 +29,7 @@ Antes de comenzar, asegúrate de tener instalado en tu computadora:
 El servidor se iniciará por defecto en `http://localhost:5173`.
 
 ## 🌐 Link al deploy 
-[https://github.com/picassofabrizio/Trabajo-Practico-N-1-CUI](https://github.com/picassofabrizio/TP2-CIU)
+[https://github.com/picassofabrizio/TP2-CIU](https://github.com/picassofabrizio/TP2-CIU)
 
 ## 👤 Integrantes del grupo
 
