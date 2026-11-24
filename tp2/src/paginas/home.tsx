@@ -88,7 +88,7 @@ function Home() {
       <div className='container mt-4' style={{ maxWidth: '700px' }}>
 
       {/* Barra de navegación */}
-      <nav className="navbar navbar-light bg-light px-3 mb-4 rounded shadow-sm">
+      <nav className="navbar navbar-light bg-white px-3 mb-4 rounded shadow-sm sticky-top">
       <span className="navbar-brand fw-bold">
         Anti-Social Net
       </span>
@@ -130,7 +130,7 @@ function Home() {
       </nav>
 
       {/* Banner de bienvenida. Si hay usuario logeado, lo saluda por su nombre. Si no, visitante */}
-      <div className='p-4 mb-4 bg-light rounded-3 border'>
+      <div className='p-4 mb-4 bg-white rounded-3 border'>
         <h2 className='fw-bold'>
           ¡Bienvenido, {usuarioLogeado?.usuario? usuarioLogeado.usuario.nickName: 'visitante'}!
         </h2>

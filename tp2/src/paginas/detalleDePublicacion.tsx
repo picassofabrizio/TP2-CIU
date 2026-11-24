@@ -7,7 +7,7 @@ import { useState, useEffect, useContext } from "react";
 import { UsuarioContext } from "../contextos/UsuarioContext";
 
 function DetalleDePublicacion() {
-  //* Leemos el :id de la URL (/detalle/:id)
+  //* Leemos el :id de la URL (/post/:id)
   const { id } = useParams<{ id: string }>();
 
   //* Usuario logueado (para saber quién comenta)
@@ -178,7 +178,7 @@ function DetalleDePublicacion() {
 
   return (
     <div className="container mt-4 mb-5" style={{ maxWidth: "700px" }}>
-      <nav className="navbar navbar-light bg-light px-3 mb-4 rounded shadow-sm">
+      <nav className="navbar navbar-light bg-white px-3 mb-4 rounded shadow-sm">
         
         {/* El logo es un botón que lleva al home */}
         <Link to="/home" className="navbar-brand fw-bold">
@@ -234,7 +234,7 @@ function DetalleDePublicacion() {
                   👤 {autorPost?.nickName ?? publicacion?.User?.nickName}
                 </h5>
                 <small className="text-muted">
-                  <p>Publicado el {publicacion?.createdAt}</p>
+                  Publicado el {publicacion?.createdAt && new Date(publicacion.createdAt).toLocaleDateString("es-AR")}
                 </small>
               </div>
 
@@ -315,7 +315,6 @@ function DetalleDePublicacion() {
         )
       }
 
-      <p>ID de la publicación: {id}</p>
       
 
     </div>

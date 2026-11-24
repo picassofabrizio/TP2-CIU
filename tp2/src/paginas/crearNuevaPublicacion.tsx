@@ -6,7 +6,6 @@ import { Link, useNavigate } from "react-router-dom";
 function CrearNuevaPublicacion() {
 
   const authContext = useContext(UsuarioContext);
-  const [mensaje, setMensaje] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [descripcion, setDescripcion] = useState<string>("");
   const [errorDescripcion, setErrorDescripcion] = useState<string | null>(null);
@@ -56,7 +55,6 @@ function CrearNuevaPublicacion() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setMensaje(null);
     setError(null);
     setEnviado(true);
 
@@ -124,7 +122,6 @@ function CrearNuevaPublicacion() {
             Crear Nueva Publicación
           </h5>
 
-        {mensaje && <p style={{ color: "green" }}>{mensaje}</p>}
         {error && <div className="alert alert-danger py-2">{error}</div>}
           <form onSubmit={handleSubmit} noValidate>
           <div className="mb-3">
