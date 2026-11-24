@@ -100,26 +100,36 @@ function PerfilDeUsuario() {
 
   //* Lista de publicaciones del usuario
   const renderPublicaciones = () => {
-    //* Si no hay posts, avisamos (antes faltaba el return)
+    //* Si no hay posts, avisamos
     if (publicaciones.length === 0) {
-      return <p>Este usuario aún no tiene publicaciones</p>;
+      return (
+        <div className="alert alert-info">
+          Este usuario aún no tiene publicaciones.
+        </div>
+      );
     }
     return publicaciones.map((publicacion) => (
-      <article key={publicacion.id}>
-        <p>{publicacion.description}</p>
-        <small>{new Date(publicacion.createdAt).toLocaleString()}</small>
-        {/* Cantidad de comentarios visibles del post */}
-        <p>💬 {publicacion.Comments?.length || 0} comentarios</p>
-        <div>
-          <Link
-            to={`/post/${publicacion.id}`}
-            className="btn btn-primary btn-sm"
-          >
-            Ver Más
-          </Link>
+      <div className="card mb-3 shadow-sm" key={publicacion.id}>
+        <div className="card-body">
+          <p className="card-text">{publicacion.description}</p>
+          <small className="text-muted">
+            {new Date(publicacion.createdAt).toLocaleString()}
+          </small>
+
+          {/* Cantidad de comentarios visibles y botón al detalle */}
+          <div className="d-flex justify-content-between align-items-center border-top pt-3 mt-3">
+            <span className="text-muted">
+              💬 {publicacion.Comments?.length || 0} comentarios
+            </span>
+            <Link
+              to={`/post/${publicacion.id}`}
+              className="btn btn-primary btn-sm"
+            >
+              Ver más
+            </Link>
+          </div>
         </div>
-        <hr />
-      </article>
+      </div>
     ));
   };
   //* Solo se puede ver el perfil propio: si el id de la URL no coincide

@@ -109,7 +109,7 @@ function CrearNuevaPublicacion() {
         }
       }
 
-      navigate("/home");
+      navigate(`/perfil/${usuario.id}`);
     } catch (error) {
       console.error("Error al crear la publicación:", error);
 
