@@ -4,17 +4,16 @@ import type { Tag } from "../types/Tag";
 import { Link, useNavigate } from "react-router-dom";
 
 function CrearNuevaPublicacion() {
-
   const authContext = useContext(UsuarioContext);
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [descripcion, setDescripcion] = useState<string>("");
   const [errorDescripcion, setErrorDescripcion] = useState<string | null>(null);
   const [etiquetas, setEtiquetas] = useState<Tag[]>([]);
-  const [tagsSeleccionados, setTagSeleccionados] = useState<number[]>([]);
-  const navigate = useNavigate();
   const [imagenes, setImagenes] = useState<string[]>([""]);
   const [enviado, setEnviado] = useState<boolean>(false);
+  const [tagsSeleccionados, setTagsSeleccionados] = useState<number[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const obtenerEtiquetas = async () => {
@@ -42,7 +41,7 @@ function CrearNuevaPublicacion() {
     return <p>Debe iniciar sesión para crear una publicación.</p>;
   }
 
-  const {usuario} = authContext;
+  const { usuario } = authContext;
 
   function cambiarImagen(posicion: number, nuevaUrl: string) {
     const nuevas= [...imagenes];
@@ -55,63 +54,76 @@ function CrearNuevaPublicacion() {
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setMensaje(null);
-    setError(null);
-    setEnviado(true);
+  event.preventDefault();
 
-    const imagenesValidas = imagenes.map((url) => url.trim()).filter((url): url is string => url !== "");
-    if (!descripcion.trim()) {
-      setErrorDescripcion("La descripción es obligatoria.");
-      setEnviado(false);
-      return;
-    }
+  setMensaje(null);
+  setError(null);
+  setEnviado(true);
 
+  // Limpiamos las URLs y descartamos los campos vacíos.
+  const imagenesValidas = imagenes
+    .map((url) => url.trim())
+    .filter((url) => url !== "");
 
-    const postData = {
-      description: descripcion.trim(),
-      userId: usuario.id,
-      tagIds: tagsSeleccionados,
-    };
+  // Validamos la descripción.
+  if (!descripcion.trim()) {
+    setErrorDescripcion("La descripción es obligatoria.");
+    setEnviado(false);
+    return;
+  }
 
-    try {
-      // Enviar la publicación al backend
-      const response = await fetch(postPublicacion, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(postData)
-      });
-      if (!response.ok) {
-        throw new Error("Error al crear la publicación");
-      }
-      const createdPost = await response.json();
-
-      // Enviar las imágenes al backend
-      for (const url of imagenesValidas) {
-        const imgRes = await fetch(postPublicacionImagenes, {
-          method : "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          // El backend espera url y postId
-          body: JSON.stringify({ url, postId: createdPost.id }),
-        });
-        if (!imgRes.ok) {
-          throw new Error("Error al subir la imagen: " + url);
-        }
-      }
-      navigate(`/perfil/${usuario.id}`);
-    } catch (error) {
-      console.error("Error al crear la publicación:", error);
-      setError(error instanceof Error ? error.message : "Error al crear la publicación");
-    }
-    finally {
-      setEnviado(false);
-    }
+  const postData = {
+    description: descripcion.trim(),
+    userId: usuario.id,
+    tagIds: tagsSeleccionados,
   };
 
+  try {
+    // Creamos la publicación.
+    const response = await fetch(postPublicacion, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(postData),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al crear la publicación");
+    }
+
+    const createdPost = await response.json();
+
+    // Asociamos cada imagen a la publicación creada.
+    for (const url of imagenesValidas) {
+      const imgRes = await fetch(postPublicacionImagenes, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url, postId: createdPost.id }),
+      });
+
+      if (!imgRes.ok) {
+        throw new Error("Error al subir la imagen: " + url);
+      }
+    }
+
+    navigate("/home");
+
+  } catch (error) {
+    console.error("Error al crear la publicación:", error);
+
+    setError(
+      error instanceof Error
+        ? error.message
+        : "Error al crear la publicación",
+    );
+
+  } finally {
+    setEnviado(false);
+  }
+};
   return (
     <div className="card mt-3 mb-4 shadow-sm mx-auto" style={{ maxWidth: "700px" }}>
       <div className="card-body">
@@ -157,7 +169,7 @@ function CrearNuevaPublicacion() {
                   id={`tag-${tag.id}`}
                   checked={tagsSeleccionados.includes(tag.id)}
                   onChange={() =>
-                    setTagSeleccionados((prev) =>
+                    setTagsSeleccionados((prev) =>
                       prev.includes(tag.id)
                         ? prev.filter((id) => id !== tag.id) // si ya estaba, la saco
                         : [...prev, tag.id] // si no estaba, la agrego

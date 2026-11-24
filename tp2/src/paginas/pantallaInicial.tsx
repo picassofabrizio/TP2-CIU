@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useState} from "react";
+import { useSearchParams } from "react-router-dom";
 import InicioDeSesion from "./inicioDeSesion";
 import RegistroDeUsuario from "./registroDeUsuario";
 
 function PantallaInicial() {
   //* Controla qué contenido se muestra en la card
-  const [vista, setVista] = useState("inicio");
+  const [searchParams] = useSearchParams();
+
+  const vistaInicial = searchParams.get("vista") || "inicio";
+
+  const [vista, setVista] = useState(vistaInicial);
 
   return (
     <div className="container d-flex justify-content-center align-items-center min-vh-100">
