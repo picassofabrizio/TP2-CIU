@@ -256,6 +256,26 @@ function Home() {
         </div>
       </div>
 
+      <div className="input-group mb-4">
+        <span className='input-group-text'>
+          🏷️
+        </span>
+
+        {/* Filtra las publicaciones con la etiqueta indicada en el input */}
+        <input type="text" className="form-control" 
+          placeholder="Buscar publicaciones por tag. Ej: arte, unahur..." 
+          value={filtroTag}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+             const valor = e.target.value
+             if (valor.trim() === ""){
+              setSearchParams({})
+             } else{
+              setSearchParams({ tag: valor })
+             }
+          }}
+        />
+      </div>
+
       {/* Estilos para el estado de carga */}
       {cargando ? (
         <div className="text-center my-5">

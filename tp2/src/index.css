@@ -150,3 +150,40 @@ a {
   background-color: var(--superficie-secundaria);
   color: var(--texto);
 }
+
+/* ========================================
+   INPUTS Y BUSCADOR
+======================================== */
+.input-group-text {
+  background-color: var(--superficie-secundaria);
+  color: var(--texto);
+  border-color: var(--texto-secundario);
+}
+
+.form-control {
+  background-color: var(--fondo); /* Más oscuro que la superficie para dar profundidad */
+  color: var(--texto);
+  border-color: var(--texto-secundario);
+}
+
+.form-control:focus {
+  background-color: var(--fondo);
+  color: var(--texto);
+  border-color: var(--acento);
+  box-shadow: 0 0 0 0.25rem rgba(96, 165, 250, 0.35);
+}
+
+.form-control::placeholder {
+  color: var(--texto-secundario);
+  opacity: 0.9;
+}
+
+/* ========================================
+   LISTA DE COMENTARIOS
+======================================== */
+.list-group-item {
+  background-color: var(--superficie);
+  color: var(--texto);
+  border-color: var(--borde);
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
