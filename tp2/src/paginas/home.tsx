@@ -231,7 +231,7 @@ function Home() {
               {mostrarAvisoSesion && (
                 <div className="alert alert-warning mt-3 mb-0">
                   <strong>
-                    ¡Debés iniciar sesión o registrate para crear una
+                    ¡Debés iniciar sesión o registrarte para crear una
                     publicación!
                   </strong>
                   <div className="mt-2">
