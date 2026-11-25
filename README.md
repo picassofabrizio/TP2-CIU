@@ -1,44 +1,65 @@
-# Unahur Anti-Social Net  -  Red Social
+# UNAHUR Anti-Social Net - Red Social
 
-Aplicación Web en REACT desarrollada con **Node.js**,**React**, **Bootstrap**, **Vite**, diseñada para conectarte con amigos y familiares, y para publicar logros, experiencias o lo que el usuario quiera.
+Aplicación web desarrollada con **React**, **Node.js**, **Bootstrap** y **Vite**, diseñada para conectar amigos y familiares. Permite crear publicaciones, compartir imágenes, agregar etiquetas e interactuar con el contenido de otros usuarios.
 
 ## 🚀 Requisitos previos
 
-Antes de comenzar, asegúrate de tener instalado en tu computadora:
-* [Node.js] (https://nodejs.org/) (Versión 18 o superior recomendada).
-* Un gestor de paquetes como `npm`.
-* Una API que sea compatible con las funciones de la aplicacion web (Recomendada: https://github.com/lucasfigarola/backend-api
-)
+Antes de comenzar, asegurarse de tener instalado:
 
----
+- [Node.js](https://nodejs.org/) (versión 18 o superior).
+- npm (incluido con Node.js).
+- El backend proporcionado por la materia: [backend-api](https://github.com/lucasfigarola/backend-api).
 
-## 📥 Instalación y configuración (Paso a paso)
+## 📥 Instalación y configuración
 
-1. **Clona o descarga el repositorio** en tu máquina local y abre una terminal en la carpeta raíz del proyecto (`TP-1`).
+1. Clonar o descargar este repositorio:
 
-2. **Instala las dependecias** del proyecto ejecutando en la terminal: npm install
+   ```bash
+   git clone https://github.com/picassofabrizio/TP2-CIU.git
+   ```
 
-3. **Corre la API** en tu Visual Studio Code al mismo tiempo en el que corres esta Aplicacion Web
+2. Ingresar a la carpeta del FrontEnd:
 
----
+   ```bash
+   cd TP2-CIU/tp2
+   ```
 
-## ▶️ Cómo levantar el proyecto
+3. Instalar las dependencias:
 
-* **Modo desarrollo** (con reinicio automático usando nodemon si está configurado): npm run dev
+   ```bash
+   npm install
+   ```
 
-El servidor se iniciará por defecto en `http://localhost:5173`.
+4. Descargar, configurar e iniciar el backend siguiendo las instrucciones de su repositorio.
 
-## 🌐 Link al deploy 
-[https://github.com/picassofabrizio/TP2-CIU](https://github.com/picassofabrizio/TP2-CIU)
+## ▶️ Cómo ejecutar el proyecto
+
+Una vez iniciado el backend, desde la carpeta `tp2` ejecutar:
+
+```bash
+npm run dev
+```
+
+La aplicación web estará disponible en:
+
+http://localhost:5173
+
+## 🌐 API utilizada
+
+Se utiliza el backend proporcionado por la materia.
+
+**Repositorio del Backend:**
+
+https://github.com/lucasfigarola/backend-api
+
+**URL local de la API:**
+
+http://localhost:3001
 
 ## 👤 Integrantes del grupo
 
-* Bigata Franco Ezequiel
-
-* Govi Ian Valentin
-
-* Laurenti Gabriel Luciano
-
-* Picasso Fabrizio Emanuel
-
-* Rivero Oriana Romina
+- Bigata Franco Ezequiel
+- Govi Ian Valentin
+- Laurenti Gabriel Luciano
+- Rivero Oriana Romina
+- Picasso Fabrizio Emanuel
